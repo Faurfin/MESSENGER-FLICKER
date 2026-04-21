@@ -1,0 +1,1811 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0, user-scalable=yes" />
+  <meta name="theme-color" content="#f4f4f7" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="format-detection" content="telephone=no" />
+  <title></title>
+  <link rel="icon" type="image/x-icon" href="/images/favicon.ico" />
+  <!-- КРИТИЧЕСКИЙ INLINE CSS: Предотвращает мелькание белого фона при темной теме -->
+  <style id="critical-theme-styles">
+    /* Базовые стили для предотвращения FOUC */
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      background-color: #f4f4f7;
+      color: #1c1c1e;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Скрываем контент до загрузки темы */
+    body:not(.theme-loaded) {
+      visibility: hidden;
+    }
+
+    body.theme-loaded {
+      visibility: visible;
+    }
+  </style>
+  <!-- КРИТИЧЕСКИЙ INLINE SCRIPT: Применяет тему ДО загрузки остального JS -->
+  <script>
+    (function () {
+      "use strict";
+      const applyTheme = () => {
+        try {
+          const root = document.documentElement;
+          const body = document.body;
+          if (!root || !body) {
+            return;
+          }
+
+          // Загружаем тему из localStorage СРАЗУ
+          const savedTheme = localStorage.getItem("flicker_theme");
+          let theme = {
+            mode: "light",
+            colors: {
+              primary: "#5865f2",
+              backgroundApp: "#f4f4f7",
+              background1: "#FFFFFF",
+              background2: "rgba(255, 255, 255, 0.72)",
+              backgroundMessage: "#f0f2f5",
+              textDark: "#1c1c1e",
+              textInactive: "#8e8e93",
+              divider: "rgba(0, 0, 0, 0.06)",
+              online: "#34c759",
+            },
+          };
+
+          if (savedTheme) {
+            try {
+              theme = JSON.parse(savedTheme);
+            } catch (e) {
+              console.warn("Ошибка парсинга темы:", e);
+            }
+          }
+
+          // Применяем тему НЕМЕДЛЕННО через inline стили
+          root.style.setProperty("--color-primary", theme.colors.primary);
+          root.style.setProperty(
+            "--color-background-app",
+            theme.colors.backgroundApp
+          );
+          root.style.setProperty(
+            "--color-background-1",
+            theme.colors.background1
+          );
+          root.style.setProperty(
+            "--color-background-2",
+            theme.colors.background2
+          );
+          root.style.setProperty(
+            "--color-background-message",
+            theme.colors.backgroundMessage
+          );
+          root.style.setProperty("--color-text-dark", theme.colors.textDark);
+          root.style.setProperty(
+            "--color-text-inactive",
+            theme.colors.textInactive
+          );
+          root.style.setProperty("--color-divider", theme.colors.divider);
+          root.style.setProperty("--color-online", theme.colors.online);
+
+          // Применяем класс темы
+          const metaThemeColor = document.querySelector(
+            'meta[name="theme-color"]'
+          );
+          if (theme.mode === "dark") {
+            body.classList.add("theme-dark");
+            body.classList.remove("theme-light");
+            if (metaThemeColor) {
+              metaThemeColor.setAttribute(
+                "content",
+                theme.colors.backgroundApp || "#0E1621"
+              );
+            }
+          } else {
+            body.classList.add("theme-light");
+            body.classList.remove("theme-dark");
+            if (metaThemeColor) {
+              metaThemeColor.setAttribute(
+                "content",
+                theme.colors.backgroundApp || "#FFFFFF"
+              );
+            }
+          }
+
+          // Вычисляем hover цвет
+          const hexToRgb = function (hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(
+              hex
+            );
+            return result
+              ? {
+                  r: parseInt(result[1], 16),
+                  g: parseInt(result[2], 16),
+                  b: parseInt(result[3], 16),
+                }
+              : null;
+          };
+
+          const primaryRgb = hexToRgb(theme.colors.primary);
+          if (primaryRgb) {
+            root.style.setProperty(
+              "--color-background-hover",
+              "rgba(" +
+                primaryRgb.r +
+                ", " +
+                primaryRgb.g +
+                ", " +
+                primaryRgb.b +
+                ", 0.05)"
+            );
+          }
+
+          // Помечаем, что тема загружена
+          body.classList.add("theme-loaded");
+        } catch (e) {
+          console.error("Ошибка применения критической темы:", e);
+          const body = document.body;
+          if (body) {
+            // В случае ошибки показываем светлую тему
+            body.classList.add("theme-loaded", "theme-light");
+          }
+        }
+      };
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", applyTheme);
+      } else {
+        applyTheme();
+      }
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/chats_static/css/base.css" />
+  <link rel="stylesheet" href="/chats_static/css/layout.css" />
+  <link rel="stylesheet" href="/chats_static/css/design-modals.css" />
+  <link rel="stylesheet" href="/chats_static/css/design-chat.css" />
+  <link rel="stylesheet" href="/chats_static/css/settings.css" />
+  <link rel="stylesheet" href="/chats_static/css/profile-enhancements.css" />
+  <link rel="stylesheet" href="/chats_static/css/calls.css" />
+  <link rel="stylesheet" href="/chats_static/chats.css" />
+  <link rel="stylesheet" href="/chats_static/css/responsive.css" />
+  <!-- Подсветка синтаксиса для блоков кода -->
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/css.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/java.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+  <!-- Preload критических ресурсов для быстрой загрузки -->
+  <link rel="preload" href="/chats_static/css/base.css" as="style" />
+</head>
+
+<body data-user-email="{{ user_email }}" data-user-id="{{ user_id }}" data-user-name="{{ username }}"
+  data-user-avatar="{{ user_profile_picture }}" data-initial-chat-slug="{{ initial_chat_slug or '' }}">
+  <script>
+    const API_BASE_URL = window.location.origin;
+    window.CURRENT_USER_EMAIL = "{{ user_email }}";
+    window.CURRENT_USER_ID = "{{ user_id }}";
+  </script>
+
+  {% macro settings_item(title, subtitle='', icon='', highlighted=false,
+  show_arrow=true, is_last=false) %}
+  <div
+    class="settings-item {% if highlighted %}settings-item-highlighted{% endif %} {% if is_last %}settings-item-last{% endif %}">
+    <div class="settings-item-content">
+      <div class="settings-item-left">
+        {% if icon %}
+        <div class="settings-item-icon">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E" alt="Avatar" class="settings-avatar" />
+        </div>
+        {% endif %}
+        <div class="settings-item-text">
+          <div class="settings-item-title">{{ title }}</div>
+          {% if subtitle %}
+          <div class="settings-item-subtitle">{{ subtitle | safe }}</div>
+          {% endif %}
+        </div>
+      </div>
+      {% if show_arrow %}
+      <div class="settings-item-arrow">
+        <img src="/images/chevron-left.svg" alt="Arrow" />
+      </div>
+      {% endif %}
+    </div>
+    <div class="settings-item-divider"></div>
+  </div>
+  {% endmacro %}
+
+  <div class="container">
+    <!-- Оверлей для drawer: вне chat-list, чтобы работал во всех секциях -->
+    <div class="app">
+      <!-- Floating Dock / Island Navigation (glassmorphism + sliding highlight) -->
+      <aside class="sidebar nav-dock" id="navDock">
+        <nav class="menu nav-dock__inner">
+          <span class="nav-dock__slider" aria-hidden="true"></span>
+          <div class="menu-top nav-dock__group">
+            <button class="nav-button active" id="chatsButton" data-tab="chats" data-dock-index="0">
+              <div class="nav-icon-container">
+                <img src="/images/chat.svg" alt="Чаты" />
+              </div>
+              <span>Чаты</span>
+            </button>
+            <button class="nav-button" id="groupsButton" data-dock-index="2">
+              <div class="nav-icon-container">
+                <img src="/images/groups.svg" alt="Группы" />
+              </div>
+              <span>Группы</span>
+            </button>
+            <button class="nav-button" id="botsButton" data-dock-index="3">
+              <div class="nav-icon-container">
+                <img src="/images/bots.svg" alt="Боты" />
+              </div>
+              <span>Боты</span>
+            </button>
+          </div>
+          <ul class="nav"></ul>
+          <div class="menu-bottom nav-dock__group">
+            <button class="nav-button" id="contactsButton" data-tab="contacts" data-dock-index="4">
+              <div class="nav-icon-container">
+                <img src="/images/contacts.svg" alt="Контакты" />
+              </div>
+              <span>Контакты</span>
+            </button>
+            <button class="nav-button" id="callsButton" data-dock-index="5">
+              <div class="nav-icon-container">
+                <img src="/images/calls.svg" alt="Звонки" />
+              </div>
+              <span>Звонки</span>
+            </button>
+            <button class="nav-button" id="settingsButton" data-tab="settings" data-dock-index="6">
+              <div class="nav-icon-container">
+                <img src="/images/settings.svg" alt="Настройки" />
+              </div>
+              <span>Настройки</span>
+            </button>
+          </div>
+        </nav>
+      </aside>
+
+      <div class="app__main">
+      <aside class="chat-list" id="chatListSection">
+        <div class="search">
+          <form action="/" method="GET" class="search-form" id="searchForm">
+            <input type="text" name="search_query" placeholder="Поиск..." value="{{ current_search_query or '' }}"
+              id="searchInput" class="search-input" />
+            <button type="submit" class="search-submit-btn">
+              <img src="/images/search-01.svg" alt="Поиск" class="search-icon" />
+            </button>
+            <button id="searchClearBtn" class="search-clear-btn hidden" type="button" aria-label="Очистить поиск">
+              <!-- Крестик -->
+              &times;
+            </button>
+          </form>
+        </div>
+        <div class="message-search-results hidden" id="messageSearchResults">
+          <div class="message-search-results-header">Поиск по сообщениям</div>
+          <div class="message-search-results-list" id="messageSearchResultsList"></div>
+          <div class="message-search-results-empty hidden" id="messageSearchResultsEmpty">
+            Ничего не найдего
+          </div>
+        </div>
+        <div class="chat-list-scroll">
+          <!-- Результаты мгновенного поиска пользователей (JS) -->
+          <ul id="userSearchResultsUl" class="user-search-results" style="display: none"></ul>
+
+          <!-- Основной список чатов -->
+          <ul id="chatListUl">
+            {% if search_results %}
+            <li class="search-results-header">
+              <span>Результаты поиска:</span>
+            </li>
+            {% for user in search_results %}
+            <li class="search-result-item-list">
+              <button type="button" class="view-user-profile-btn" data-user-email="{{ user.email }}">
+                <img src="{{ user.profile_picture if user.profile_picture and '.svg' not in user.profile_picture else generate_avatar(user.full_name or user.username or user.email, user.email) }}" alt="Avatar" />
+                <div class="search-user-details">
+                  <span class="search-user-name">{{ user.full_name or user.username }}</span>
+                  <span class="search-user-email">{{ user.email }}</span>
+                </div>
+              </button>
+            </li>
+            {% endfor %} {% if not search_results and current_search_query %}
+            <li class="no-results-message">Пользователи не найдены.</li>
+            {% endif %}
+            <li class="sidebar-divider">
+              <div class="divider-line"></div>
+            </li>
+            <li><span>Ваши чаты:</span></li>
+            {% endif %} {% for chat in user_chats %} {% set chat = chat %}
+            <li>
+              <button type="button" class="chat-list-item-btn" data-chat-id="{{ chat.chat_id }}"
+                data-interlocutor-email="{{ chat.interlocutor_email or '' }}"
+                data-interlocutor-username="{{ chat.interlocutor_username or '' }}"
+                data-chat-name="{{ chat.chat_title }}" data-contact-display-name="{{ chat.contact_display_name or '' }}"
+                data-avatar-url="{{ chat.chat_avatar if chat.chat_avatar and '.svg' not in chat.chat_avatar else generate_avatar(chat.contact_display_name or chat.chat_title, chat.chat_id if chat.is_group else (chat.interlocutor_email or chat.chat_id)) }}"
+                data-is-group-chat="{{ 'true' if chat.is_group else 'false' }}"
+                data-is-group="{{ 'true' if chat.is_group else 'false' }}" data-group-name="{{ chat.group_name or '' }}"
+                data-group-owner="{{ chat.group_owner or '' }}"
+                data-is-blocked="{{ 'true' if chat.is_blocked else 'false' }}"
+                data-last-timestamp="{{ (chat.last_message_timestamp or chat.created_at).isoformat() }}"
+                data-last-sender-email="{{ chat.last_message_sender_email or '' }}"
+                data-is-online="{{ 'true' if chat.is_online else 'false' }}" data-last-seen="{{ chat.last_seen or '' }}"
+                data-is-bot="{{ 'true' if chat.is_bot else 'false' }}"
+                data-is-favorite="{{ 'true' if chat.is_favorite else 'false' }}">
+
+                <img src="{{ chat.chat_avatar if chat.chat_avatar and '.svg' not in chat.chat_avatar else generate_avatar(chat.contact_display_name or chat.chat_title, chat.chat_id if chat.is_group else (chat.interlocutor_email or chat.chat_id)) }}" alt="Chat Avatar" loading="lazy" />
+
+                {% if chat.is_online and not chat.is_bot and not chat.is_group %}
+                <div class="online-status-dot"></div>
+                {% endif %}
+
+                <div class="chat-info">
+                  <div class="chat-name">
+                    {{ chat.contact_display_name or chat.chat_title }}
+                  </div>
+                  <div class="last-message {% if chat.is_typing %}typing-status{% endif %}"
+                    data-chat-id="{{ chat.chat_id }}"
+                    data-original-text="{{ chat.last_message_content or 'Нет сообщений' }}">
+                    {% if chat.is_typing %} Печатает... {% else %} {{ chat.last_message_content or "Нет сообщений" }} {% endif %}
+                  </div>
+                </div>
+
+                <div class="chat-meta-right">
+                  <span class="chat-timestamp">
+                    <span class="chat-list-ticks" data-chat-id="{{ chat.chat_id }}">
+                      {% if chat.last_message_status == 'read' %}
+                      <img src="/images/read.svg" alt="Прочитано" />
+                      {% elif chat.last_message_status == 'sent' %}
+                      <img src="/images/no_read.svg" alt="Отправлено" />
+                      {% endif %}
+                    </span>
+                    <span class="chat-list-time">{{ chat.last_message_timestamp | format_time }}</span>
+                  </span>
+
+                  {% if chat.unread_count | default(0) > 0 %}
+                  <div class="unread-count">{{ chat.unread_count }}</div>
+                  {% endif %}
+                </div>
+              </button>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </aside>
+
+      <main class="chat-empty" id="chatEmptyState">
+        <div class="chat-empty__content">
+          <div class="chat-empty__decoration">
+            <span class="chat-empty__icon">💬</span>
+          </div>
+          <h1 class="chat-empty__title">Выберите чат</h1>
+          <p class="chat-empty__subtitle">Выберите чат из списка, чтобы начать общение</p>
+        </div>
+      </main>
+
+      <main class="chat-window hidden" id="chatWindow">
+        <header class="chat-header" id="chatHeaderClickable">
+          <div class="chat-header-left">
+            <button class="chat-header-btn back-btn" id="backToChatListBtn">
+              <img src="/images/chevron-left.svg" alt="Назад" />
+            </button>
+            <div class="avatar-container" id="avatar-container">
+              <img id="currentChatAvatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E" alt="Chat Avatar" />
+            </div>
+            <div class="chat-info-header" id="chat-info-header">
+              <h2 id="currentChatTitle">Название Чата</h2>
+              <span id="currentChatStatus" class="chat-status-header"></span>
+            </div>
+          </div>
+
+          <div class="chat-menu-container" id="chat-menu-container">
+            <button class="chat-header-btn search-btn" id="chatSearchBtn">
+              <img src="/images/лупа.svg" alt="Поиск" />
+            </button>
+            <button class="chat-header-btn phone-btn" id="chatCallBtn">
+              <img src="/images/phones.svg" alt="Звонок" />
+            </button>
+            <button class="chat-header-btn menu-btn" id="menuToggleBtn">
+              <img src="/images/dot-horizontal.svg" alt="" />
+            </button>
+            <div class="chat-menu-dropdown hidden" id="chatMenuDropdown">
+              <button class="chat-menu-item" id="groupSettingsMenuItem" style="display: none">
+                Настройки группы
+              </button>
+              <button class="chat-menu-item" id="clearChatMenuItem">
+                Очистить историю
+              </button>
+              <button class="chat-menu-item" id="deleteChatMenuItem">
+                Удалить чат
+              </button>
+              <button class="chat-menu-item">Пожаловаться</button>
+              <button class="chat-menu-item" id="blockUserBtn">
+                Заблокировать
+              </button>
+            </div>
+          </div>
+
+          <!-- Поиск внутри чата (оверлей в хедере) -->
+          <div class="chat-search-wrapper hidden" id="chatSearchWrapper">
+            <div class="chat-search-bar" id="chatSearchBar" data-state="idle">
+              <button type="button" class="chat-search-icon-btn" aria-label="Поиск">
+                <span class="chat-search-icon-surface">
+                  <img src="/images/search-01.svg" alt="Поиск" id="chatSearchIcon" />
+                </span>
+              </button>
+              <div class="chat-search-body">
+                <input type="text" id="chatSearchInput" class="chat-search-input" placeholder="Найти..."
+                  autocomplete="off" />
+                <div class="chat-search-display">
+                  <span class="chat-search-count" id="chatSearchCount"></span>
+                  <span class="chat-search-empty-label" id="chatSearchEmptyLabel">Ничего не найдего</span>
+                </div>
+              </div>
+              <button type="button" class="chat-search-clear-btn hidden" id="chatSearchClearBtn"
+                aria-label="Очистить поиск">
+                <span class="chat-search-clear-surface">
+                  <img src="/images/x-02-blue.svg" alt="Закрыть" id="chatSearchClearIcon" />
+                </span>
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <!-- Баннер уведомления об аудио-чате (под хедером) -->
+        <div class="audio-chat-banner hidden" id="audioChatBanner">
+          <div class="audio-chat-banner-content">
+            <div class="audio-chat-banner-avatar">
+              <img id="audioChatBannerAvatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E" alt="Создатель" />
+            </div>
+            <div class="audio-chat-banner-text">
+              <div class="audio-chat-banner-title" id="audioChatBannerTitle">
+                Аудио-чат
+              </div>
+              <div class="audio-chat-banner-subtitle" id="audioChatBannerSubtitle">
+                Кто-то создал аудио-чат
+              </div>
+            </div>
+            <button class="audio-chat-banner-join-btn" id="audioChatBannerJoinBtn">
+              <span>Присоединиться</span>
+            </button>
+            <button class="audio-chat-banner-close-btn" id="audioChatBannerCloseBtn" aria-label="Закрыть">
+              <img src="/images/x-02-blue.svg" alt="Закрыть" />
+            </button>
+          </div>
+        </div>
+
+        <div class="chat-messages-wrapper">
+          <!-- Skeleton while data/loading -->
+          <div class="chat-skeleton hidden" id="chatSkeleton">
+            <div class="chat-skeleton-header">
+              <div class="chat-skeleton-avatar"></div>
+              <div class="chat-skeleton-header-lines">
+                <div class="chat-skeleton-line long"></div>
+                <div class="chat-skeleton-line short"></div>
+              </div>
+            </div>
+            <div class="chat-skeleton-body">
+              <div class="chat-skeleton-bubble left"></div>
+              <div class="chat-skeleton-bubble right"></div>
+              <div class="chat-skeleton-bubble left"></div>
+              <div class="chat-skeleton-bubble right small"></div>
+            </div>
+          </div>
+          <div class="chat-messages" id="chatMessages"></div>
+          <div class="no-messages-state hidden" id="noMessagesState">
+            <div class="waving-hand-icon">👋</div>
+            <p class="no-messages-title">Здесь пока ничего нет...</p>
+            <p class="no-messages-subtitle">Напишите первое сообщение, чтобы начать чат!</p>
+          </div>
+          <!-- Кнопка прокрутки вниз с счетчиком новых сообщений -->
+          <button class="scroll-to-bottom-btn hidden" id="scrollToBottomBtn" type="button">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M7 14L12 19L17 14M7 10L12 5L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+            <span class="new-messages-count hidden" id="newMessagesCount">0</span>
+          </button>
+        </div>
+
+        <div class="chat-input-container" id="chat-input-container">
+          <div class="reply-preview hidden" id="replyPreview">
+            <div class="reply-preview-content">
+              <div class="reply-preview-info" id="replyPreviewInfo"></div>
+              <button type="button" class="reply-preview-close" id="replyPreviewClose">
+                ×
+              </button>
+            </div>
+          </div>
+
+          <div class="attachment-menu hidden" id="attachmentMenu">
+            <button type="button" class="attachment-menu-item" id="photoVideoBtn">
+              <span>Фото или видео</span>
+              <img src="/images/image-03.svg" alt="Фото" />
+            </button>
+            <button type="button" class="attachment-menu-item" id="fileBtn">
+              <span>Файл</span>
+              <img src="/images/file.svg" alt="Файл" />
+            </button>
+            <button type="button" class="attachment-menu-item">
+              <span>Геолокация</span>
+              <img src="/images/marker-02.svg" alt="Геолокация" />
+            </button>
+            <button type="button" class="attachment-menu-item">
+              <span>Музыка</span>
+              <img src="/images/note-02.svg" alt="Музыка" />
+            </button>
+          </div>
+
+          <input type="file" id="fileInput" accept="*/*" style="display: none" />
+          <input type="file" id="imageVideoInput" accept="image/*,video/*" style="display: none" multiple />
+
+          <!-- Кнопка разблокировки (только для личных чатов, появляется после блокировки) -->
+          <div class="chat-unblock-container hidden" id="chat-unblock-container">
+            <button id="unblockUserBtn" class="unblock-btn" type="button">
+              Разблокировать
+            </button>
+          </div>
+
+          <form id="messageForm" class="chat-input-form">
+            <div class="emoji-picker hidden" id="emojiPicker">
+              <div class="emoji-categories">
+                <button type="button" class="emoji-category-btn active" data-category="smileys">
+                  😀
+                </button>
+                <button type="button" class="emoji-category-btn" data-category="animals">
+                  🐻
+                </button>
+                <button type="button" class="emoji-category-btn" data-category="food">
+                  🍕
+                </button>
+                <button type="button" class="emoji-category-btn" data-category="travel">
+                  🚗
+                </button>
+                <button type="button" class="emoji-category-btn" data-category="objects">
+                  💡
+                </button>
+                <button type="button" class="emoji-category-btn" data-category="symbols">
+                  ❤️
+                </button>
+              </div>
+              <div class="emoji-container" id="emojiContainer"></div>
+            </div>
+
+            <button type="button" class="input-icon-btn smiley-icon" id="smileyIcon">
+              <img src="/images/smiley-happy.svg" alt="Смайлик" />
+            </button>
+
+            <div class="chat-input-wrapper">
+              <div id="messageInput" class="chat-input-field" contenteditable="true" placeholder="Написать..." role="textbox" aria-multiline="true"></div>
+              <!-- Список участников для упоминаний -->
+              <div class="mentions-list hidden" id="mentionsList">
+                <div class="mentions-list-content" id="mentionsListContent">
+                  <!-- Участники будут добавлены через JavaScript -->
+                </div>
+              </div>
+            </div>
+
+            <button type="button" class="input-icon-btn mic-icon" id="micIcon">
+              <img src="/images/microphone-02.svg" alt="Голосовое сообщение" />
+            </button>
+
+            <button type="button" id="attachmentIcon" class="input-icon-btn attachment-icon">
+              <img src="/images/paperclip-01.svg" alt="Вложение" />
+            </button>
+
+            <button type="submit" id="sendButton" class="send-button hidden">
+              <img src="/images/pointer-02.svg" alt="Отправить" />
+            </button>
+          </form>
+        </div>
+
+        <div class="voice-recording-button hidden" id="voiceRecordingButton">
+          <div class="voice-recording-rectangle">
+            <div class="voice-waveform-recording" id="voiceWaveformRecording">
+              <!-- Белая полоска волны будет добавлена через JS -->
+            </div>
+            <div class="voice-timer" id="voiceTimer">00:00</div>
+          </div>
+          <div class="voice-recording-circle" id="voiceRecordingCircle">
+            <svg width="56" height="56" viewBox="0 0 35 35" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M3.63574 19.5071C4.12055 22.8382 5.78847 25.8834 8.33437 28.0856C10.8803 30.2878 14.1339 31.4998 17.5001 31.4998C20.8663 31.4998 24.12 30.2878 26.6659 28.0856C29.2118 25.8834 30.8797 22.8382 31.3645 19.5071M17.5021 3.49976C15.9101 3.49976 14.3833 4.13219 13.2575 5.25792C12.1318 6.38366 11.4994 7.91049 11.4994 9.50252V17.5062C11.4994 19.0982 12.1318 20.6251 13.2575 21.7508C14.3833 22.8765 15.9101 23.509 17.5021 23.509C19.0942 23.509 20.621 22.8765 21.7467 21.7508C22.8725 20.6251 23.5049 19.0982 23.5049 17.5062V9.50252C23.5049 7.91049 22.8725 6.38366 21.7467 5.25792C20.621 4.13219 19.0942 3.49976 17.5021 3.49976Z"
+                stroke="#346AFE" stroke-width="2.91667" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="context-menu-overlay hidden" id="contextMenuOverlay"></div>
+
+        <div class="custom-context-menu hidden" id="messageContextMenu">
+          <ul>
+            <li class="context-menu-item" data-action="reply">
+              <button type="button">
+                <span>Ответить</span>
+                <div class="context-menu-icon" id="icon-reply"></div>
+              </button>
+            </li>
+            <li class="context-menu-item" data-action="copy">
+              <button type="button">
+                <span>Скопировать</span>
+                <div class="context-menu-icon" id="icon-copy"></div>
+              </button>
+            </li>
+            <li class="context-menu-item" data-action="edit">
+              <button type="button">
+                <span>Изменить</span>
+                <div class="context-menu-icon" id="icon-edit"></div>
+              </button>
+            </li>
+            <li class="context-menu-item" data-action="pin">
+              <button type="button">
+                <span>Закрепить</span>
+                <div class="context-menu-icon" id="icon-pin"></div>
+              </button>
+            </li>
+            <li class="context-menu-item" data-action="forward">
+              <button type="button">
+                <span>Переслать</span>
+                <div class="context-menu-icon" id="icon-forward"></div>
+              </button>
+            </li>
+            <li class="context-menu-item delete" data-action="delete">
+              <button type="button">
+                <span>Удалить</span>
+                <div class="context-menu-icon" id="icon-delete"></div>
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Модалка подтверждения удаления сообщения -->
+        <div class="delete-confirm-overlay hidden" id="deleteConfirmOverlay">
+          <div class="delete-confirm-modal" id="deleteConfirmModal">
+            <div class="delete-confirm-option" data-delete-mode="all" id="deleteForAllOption">
+              <div class="delete-confirm-text">Удалить у всех</div>
+              <div class="delete-confirm-icon">
+                <svg width="18" height="20" viewBox="0 0 18 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M1 4.17647L17 4.17647M13 19H5C3.89543 19 3 18.0519 3 16.8824V5.23529C3 4.65052 3.44772 4.17647 4 4.17647H14C14.5523 4.17647 15 4.65052 15 5.23529V16.8824C15 18.0519 14.1046 19 13 19ZM7 4.17647H11C11.5523 4.17647 12 3.70242 12 3.11765V2.05882C12 1.47405 11.5523 1 11 1H7C6.44772 1 6 1.47405 6 2.05882V3.11765C6 3.70242 6.44772 4.17647 7 4.17647Z"
+                    stroke="#E46261" stroke-width="2" stroke-linecap="round" />
+                </svg>
+              </div>
+            </div>
+
+            <div class="delete-confirm-divider"></div>
+
+            <div class="delete-confirm-option" data-delete-mode="self" id="deleteForSelfOption">
+              <div class="delete-confirm-text">Удалить у себя</div>
+              <div class="delete-confirm-icon">
+                <svg width="18" height="20" viewBox="0 0 18 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M1 4.17647L17 4.17647M13 19H5C3.89543 19 3 18.0519 3 16.8824V5.23529C3 4.65052 3.44772 4.17647 4 4.17647H14C14.5523 4.17647 15 4.65052 15 5.23529V16.8824C15 18.0519 14.1046 19 13 19ZM7 4.17647H11C11.5523 4.17647 12 3.70242 12 3.11765V2.05882C12 1.47405 11.5523 1 11 1H7C6.44772 1 6 1.47405 6 2.05882V3.11765C6 3.70242 6.44772 4.17647 7 4.17647Z"
+                    stroke="#E46261" stroke-width="2" stroke-linecap="round" />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Модалка подтверждения очистки чата -->
+        <div class="delete-confirm-overlay hidden" id="clearChatConfirmOverlay">
+          <div class="delete-confirm-modal" id="clearChatConfirmModal">
+            <div class="delete-confirm-option" data-delete-mode="all" id="clearForAllOption">
+              <div class="delete-confirm-text">Очистить у всех</div>
+              <div class="delete-confirm-icon">
+                <svg width="18" height="20" viewBox="0 0 18 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M1 4.17647L17 4.17647M13 19H5C3.89543 19 3 18.0519 3 16.8824V5.23529C3 4.65052 3.44772 4.17647 4 4.17647H14C14.5523 4.17647 15 4.65052 15 5.23529V16.8824C15 18.0519 14.1046 19 13 19ZM7 4.17647H11C11.5523 4.17647 12 3.70242 12 3.11765V2.05882C12 1.47405 11.5523 1 11 1H7C6.44772 1 6 1.47405 6 2.05882V3.11765C6 3.70242 6.44772 4.17647 7 4.17647Z"
+                    stroke="#E46261" stroke-width="2" stroke-linecap="round" />
+                </svg>
+              </div>
+            </div>
+
+            <div class="delete-confirm-divider"></div>
+
+            <div class="delete-confirm-option" data-delete-mode="self" id="clearForSelfOption">
+              <div class="delete-confirm-text">Очистить у себя</div>
+              <div class="delete-confirm-icon">
+                <svg width="18" height="20" viewBox="0 0 18 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M1 4.17647L17 4.17647M13 19H5C3.89543 19 3 18.0519 3 16.8824V5.23529C3 4.65052 3.44772 4.17647 4 4.17647H14C14.5523 4.17647 15 4.65052 15 5.23529V16.8824C15 18.0519 14.1046 19 13 19ZM7 4.17647H11C11.5523 4.17647 12 3.70242 12 3.11765V2.05882C12 1.47405 11.5523 1 11 1H7C6.44772 1 6 1.47405 6 2.05882V3.11765C6 3.70242 6.44772 4.17647 7 4.17647Z"
+                    stroke="#E46261" stroke-width="2" stroke-linecap="round" />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Модалка подтверждения удаления чата -->
+        <div class="delete-confirm-overlay hidden" id="deleteChatConfirmOverlay">
+          <div class="delete-confirm-modal" id="deleteChatConfirmModal">
+            <div class="delete-confirm-option" data-delete-mode="all" id="deleteChatForAllOption">
+              <div class="delete-confirm-text">Удалить у всех</div>
+              <div class="delete-confirm-icon">
+                <svg width="18" height="20" viewBox="0 0 18 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M1 4.17647L17 4.17647M13 19H5C3.89543 19 3 18.0519 3 16.8824V5.23529C3 4.65052 3.44772 4.17647 4 4.17647H14C14.5523 4.17647 15 4.65052 15 5.23529V16.8824C15 18.0519 14.1046 19 13 19ZM7 4.17647H11C11.5523 4.17647 12 3.70242 12 3.11765V2.05882C12 1.47405 11.5523 1 11 1H7C6.44772 1 6 1.47405 6 2.05882V3.11765C6 3.70242 6.44772 4.17647 7 4.17647Z"
+                    stroke="#E46261" stroke-width="2" stroke-linecap="round" />
+                </svg>
+              </div>
+            </div>
+
+            <div class="delete-confirm-divider"></div>
+
+            <div class="delete-confirm-option" data-delete-mode="self" id="deleteChatForSelfOption">
+              <div class="delete-confirm-text">Удалить у себя</div>
+              <div class="delete-confirm-icon">
+                <svg width="18" height="20" viewBox="0 0 18 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M1 4.17647L17 4.17647M13 19H5C3.89543 19 3 18.0519 3 16.8824V5.23529C3 4.65052 3.44772 4.17647 4 4.17647H14C14.5523 4.17647 15 4.65052 15 5.23529V16.8824C15 18.0519 14.1046 19 13 19ZM7 4.17647H11C11.5523 4.17647 12 3.70242 12 3.11765V2.05882C12 1.47405 11.5523 1 11 1H7C6.44772 1 6 1.47405 6 2.05882V3.11765C6 3.70242 6.44772 4.17647 7 4.17647Z"
+                    stroke="#E46261" stroke-width="2" stroke-linecap="round" />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- Профиль пользователя (правая боковая панель по Figma) -->
+      <aside class="profile-section hidden" id="profileSection">
+        <div class="profile-container">
+          <div class="profile-frame">
+            <!-- Frame 136: Header с аватаром, именем, телефоном и "Цитата дня!" -->
+            <div class="profile-header-section">
+              <div class="profile-header-background" id="profileHeaderBackground">
+                <img id="profileHeaderBgImg" src="" alt="" />
+                <button class="profile-back-btn" id="profileBackBtn">
+                  <img src="/images/chevron-left.svg" alt="Назад" />
+                </button>
+              </div>
+              <div class="profile-header-info">
+                <h2 class="profile-name" id="profileName">Мама ⭐️</h2>
+                <p class="profile-username hidden" id="profileUsername"></p>
+                <p class="profile-email" id="profileEmail">
+                  user@example.com
+                </p>
+                <p class="profile-quote" id="profileQuote">Цитата дня!</p>
+              </div>
+            </div>
+
+            <!-- Блок редактирования своего профиля -->
+            <section class="profile-edit-section hidden" id="profileEditSection">
+              <h3 class="profile-edit-title">Мой профиль</h3>
+              <form class="profile-edit-form" id="profileEditForm">
+                <div class="profile-edit-row">
+                  <div class="profile-edit-avatar">
+                    <button type="button" class="profile-edit-avatar-btn" id="profileAvatarEditBtn">
+                      <span>Изменить фото</span>
+                    </button>
+                    <input type="file" id="profileAvatarInput" accept="image/*" style="display: none" />
+                  </div>
+                  <div class="profile-edit-fields">
+                    <label class="profile-edit-label">
+                      Имя
+                      <input type="text" id="profileEditNameInput" class="profile-edit-input"
+                        placeholder="Как вас зовут" />
+                    </label>
+                    <label class="profile-edit-label">
+                      <span>Никнейм</span>
+                      <input type="text" id="profileEditUsernameInput" class="profile-edit-input"
+                        placeholder="@username" autocomplete="username" />
+                    </label>
+                    <label class="profile-edit-label">
+                      Email
+                      <input type="email" id="profileEditEmailInput"
+                        class="profile-edit-input profile-edit-input--readonly" placeholder="email@example.com"
+                        readonly />
+                    </label>
+                  </div>
+                </div>
+                <label class="profile-edit-label profile-edit-label--full">
+                  О себе
+                  <textarea id="profileEditAboutInput" class="profile-edit-textarea" rows="3"
+                    placeholder="Расскажите о себе, это будет видно собеседникам"></textarea>
+                </label>
+                <div class="profile-edit-footer">
+                  <span class="profile-edit-status hidden" id="profileEditStatus"></span>
+                  <button type="submit" class="profile-edit-save-btn" id="profileEditSaveBtn">
+                    Сохранить
+                  </button>
+                </div>
+              </form>
+            </section>
+
+            <!-- Frame 151: Кнопки действий -->
+            <div class="profile-actions-section">
+              <button class="profile-action-button" id="profileCallBtn">
+                <img src="/images/call.svg" alt="Звонок" />
+                <span>Звонок</span>
+              </button>
+              <button class="profile-action-button" id="profileVideoCallBtn">
+                <img src="/images/video-on.svg" alt="Видеозвонок" />
+                <span>Видеозвонок</span>
+              </button>
+              <button class="profile-action-button" id="profileMessageBtn">
+                <img src="/images/message-square.svg" alt="Сообщение" />
+                <span>Сообщение</span>
+              </button>
+              <button class="profile-action-button hidden" id="profileAddMemberBtn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9eb6f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="8.5" cy="7" r="4"></circle>
+                  <line x1="20" y1="8" x2="20" y2="14"></line>
+                  <line x1="23" y1="11" x2="17" y2="11"></line>
+                </svg>
+                <span>Добавить участника</span>
+              </button>
+              <button class="profile-action-button" id="profileGiftBtn">
+                <img src="/images/gift-01.svg" alt="Подарок" />
+                <span>Подарок</span>
+              </button>
+              <button class="profile-action-button profile-menu-btn" id="profileMenuBtn">
+                <img src="/images/dot-horizontal.svg" alt="Меню" />
+              </button>
+            </div>
+
+            <!-- Frame 148: Секция медиа -->
+            <div class="profile-media-section">
+              <div class="profile-media-tabs">
+                <button class="profile-media-tab active" data-tab="media">
+                  Медиа
+                </button>
+                <button class="profile-media-tab" data-tab="links">
+                  Ссылки
+                </button>
+                <button class="profile-media-tab" data-tab="files">
+                  Файлы
+                </button>
+                <button class="profile-media-tab" data-tab="voice">
+                  Голосовые
+                </button>
+                <button class="profile-media-tab profile-participants-tab hidden" data-tab="participants">
+                  Участники
+                </button>
+              </div>
+              <div class="profile-content-area" id="profileContentArea">
+                <!-- Медиа/Ссылки/Файлы/Голосовые будут добавлены через JavaScript -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <div class="settings-section hidden" id="settingsSection">
+        <section class="settings-container">
+          <h1 class="settings-title">
+            Настройки
+          </h1>
+          <div class="settings-list">
+            <div id="myProfileSettingsItem">
+              {{ settings_item(username, user_email ~ '<br />@' ~ username,
+              user_profile_picture, False, True, False) }}
+            </div>
+            <!-- Обертка для Privacy чтобы работал клик -->
+            <div id="privacySettingsItem">
+              {{ settings_item('Конфиденциальность', 'Пароль, привязка к почте',
+              '', False, True, False) }}
+            </div>
+
+            <div class="settings-item" id="appearanceSettingsItem" data-settings-type="appearance">
+              <div class="settings-item-content">
+                <div class="settings-item-left">
+                  <div class="settings-item-text">
+                    <div class="settings-item-title">Оформление</div>
+                    <div class="settings-item-subtitle">
+                      Обои, цвет текста и стиль иконок
+                    </div>
+                  </div>
+                </div>
+                <div class="settings-item-arrow">
+                  <img src="/images/chevron-left.svg" alt="Arrow" />
+                </div>
+              </div>
+              <div class="settings-item-divider"></div>
+            </div>
+
+            {{ settings_item('Поддержка и вопросы', 'Пишите нам на почту: webflicker@mail.ru', '', False, False, False) }}
+
+            <div class="settings-item settings-item-danger settings-item-last" id="logoutSettingsItem"
+              data-settings-type="logout">
+              <div class="settings-item-content">
+                <div class="settings-item-left">
+                  <div class="settings-item-text">
+                    <div class="settings-item-title settings-item-title-danger">
+                      Выйти
+                    </div>
+                    <div class="settings-item-subtitle settings-item-subtitle-danger">
+                      Выйти из аккаунта
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="settings-item-divider"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Right panel area for desktop settings -->
+        <aside class="settings-info" id="settingsInfo">
+          <!-- Default content when no panel is open -->
+          <div class="settings-info-content" id="settingsInfoContent">
+            <div class="settings-info-illustration">
+              <img src="/images/empty-chat-icon.jpg" alt="Info" />
+            </div>
+            <div class="settings-info-text">
+              Интересный факт: коты чаще всего левши, нежели чем кошки
+            </div>
+          </div>
+
+          <!-- Profile Panel -->
+          <div class="my-profile-panel hidden" id="myProfileSettingsPanel">
+            <div class="my-profile-panel__header">
+              <button type="button" class="my-profile-panel__close" id="myProfileSettingsCloseBtn">
+                ×
+              </button>
+              <div class="my-profile-panel__titleblock">
+                <div class="my-profile-panel__kicker">Профиль</div>
+                <h2 class="my-profile-panel__title">Мой профиль</h2>
+              </div>
+            </div>
+
+            <div class="my-profile-panel__hero">
+              <div class="my-profile-panel__avatarwrap">
+                <img class="my-profile-panel__avatar" id="myProfileAvatarImg" src="{{ user_data.get('profile_picture') if user_data.get('profile_picture') and '.svg' not in user_data.get('profile_picture') else generate_avatar(user_data.get('full_name') or user_data.get('username') or user_data.get('email', 'Пользователь'), user_data.get('email', 'user')) }}" alt="Avatar" />
+                <button type="button" class="my-profile-panel__avatarbtn" id="myProfileAvatarBtn">
+                  Изменить фото
+                </button>
+                <input type="file" id="myProfileAvatarInput" accept="image/*" style="display: none" />
+              </div>
+
+              <div class="my-profile-panel__meta">
+                <div class="my-profile-panel__name" id="myProfileDisplayName">
+                  Пользователь
+                </div>
+                <div class="my-profile-panel__email" id="myProfileEmailText">
+                  email@example.com
+                </div>
+                <div class="my-profile-panel__chip" id="myProfileUsernameChip">
+                  @username
+                </div>
+              </div>
+            </div>
+
+            <form class="my-profile-form" id="myProfileForm">
+              <div class="my-profile-grid">
+                <label class="my-profile-field">
+                  <span class="my-profile-field__label">Имя</span>
+                  <input type="text" class="my-profile-field__input" id="myProfileNameInput"
+                    placeholder="Как вас зовут" />
+                </label>
+                <label class="my-profile-field">
+                  <span class="my-profile-field__label">Никнейм</span>
+                  <input type="text" class="my-profile-field__input" id="myProfileUsernameInput" placeholder="@username"
+                    autocomplete="username" />
+                </label>
+                <label class="my-profile-field my-profile-field--full">
+                  <span class="my-profile-field__label">Email</span>
+                  <input type="email" class="my-profile-field__input my-profile-field__input--readonly"
+                    id="myProfileEmailInput" readonly />
+                </label>
+                <label class="my-profile-field my-profile-field--full">
+                  <span class="my-profile-field__label">О себе</span>
+                  <textarea class="my-profile-field__textarea" id="myProfileAboutInput" rows="4"
+                    placeholder="Напишите пару слов о себе"></textarea>
+                </label>
+              </div>
+
+              <div class="my-profile-actions">
+                <div class="my-profile-status hidden" id="myProfileStatus"></div>
+                <button type="submit" class="my-profile-save" id="myProfileSaveBtn">
+                  Сохранить
+                </button>
+              </div>
+            </form>
+          </div>
+          <!-- Панель настроек конфиденциальности -->
+          <div class="my-profile-panel hidden" id="privacySettingsPanel">
+            <div class="my-profile-panel__header">
+              <div class="my-profile-panel__titleblock">
+                <div class="my-profile-panel__kicker">Настройки</div>
+                <h2 class="my-profile-panel__title">Конфиденциальность</h2>
+              </div>
+              <button type="button" class="my-profile-panel__close" id="privacySettingsCloseBtn">
+                ×
+              </button>
+            </div>
+
+            <form class="my-profile-form" id="privacySettingsForm">
+              <!-- Кто может видеть, когда вы были в сети -->
+              <div class="my-profile-field my-profile-field--full">
+                <span class="my-profile-field__label">Кто может видеть, когда вы были в сети</span>
+                <div class="privacy-select-wrapper">
+                  <select class="my-profile-field__input" id="privacyLastSeenSelect">
+                    <option value="everyone">Все</option>
+                    <option value="contacts">Только контакты</option>
+                    <option value="nobody">Никто</option>
+                  </select>
+                  <div class="privacy-select-custom" id="privacyLastSeenCustom">
+                    <div class="privacy-select-trigger" id="privacyLastSeenTrigger">
+                      Все
+                    </div>
+                    <div class="privacy-select-dropdown" id="privacyLastSeenDropdown">
+                      <div class="privacy-select-option selected" data-value="everyone">
+                        Все
+                      </div>
+                      <div class="privacy-select-option" data-value="contacts">
+                        Только контакты
+                      </div>
+                      <div class="privacy-select-option" data-value="nobody">
+                        Никто
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Кто может видеть фотографию профиля -->
+              <div class="my-profile-field my-profile-field--full">
+                <span class="my-profile-field__label">Кто может видеть фотографию профиля</span>
+                <div class="privacy-select-wrapper">
+                  <select class="my-profile-field__input" id="privacyProfilePhotoSelect">
+                    <option value="everyone">Все</option>
+                    <option value="contacts">Только контакты</option>
+                    <option value="nobody">Никто</option>
+                  </select>
+                  <div class="privacy-select-custom" id="privacyProfilePhotoCustom">
+                    <div class="privacy-select-trigger" id="privacyProfilePhotoTrigger">
+                      Все
+                    </div>
+                    <div class="privacy-select-dropdown" id="privacyProfilePhotoDropdown">
+                      <div class="privacy-select-option selected" data-value="everyone">
+                        Все
+                      </div>
+                      <div class="privacy-select-option" data-value="contacts">
+                        Только контакты
+                      </div>
+                      <div class="privacy-select-option" data-value="nobody">
+                        Никто
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Настройки пароля -->
+              <div class="my-profile-field my-profile-field--full">
+                <span class="my-profile-field__label">Пароль</span>
+                <div style="display: flex; gap: 8px; align-items: center">
+                  <input type="password" class="my-profile-field__input" id="privacyCurrentPassword"
+                    placeholder="Текущий пароль" style="flex: 1" />
+                  <input type="password" class="my-profile-field__input" id="privacyNewPassword"
+                    placeholder="Новый пароль" style="flex: 1" />
+                  <button type="button" class="my-profile-save" id="privacyChangePasswordBtn"
+                    style="height: 44px; padding: 0 16px; white-space: nowrap">
+                    Сменить
+                  </button>
+                </div>
+              </div>
+
+              <!-- Email -->
+              <div class="my-profile-field my-profile-field--full">
+                <span class="my-profile-field__label">Email</span>
+                <div style="display: flex; gap: 8px; align-items: center">
+                  <input type="email" class="my-profile-field__input" id="privacyEmailInput"
+                    placeholder="email@example.com" style="flex: 1" />
+                  <button type="button" class="my-profile-save" id="privacyUpdateEmailBtn"
+                    style="height: 44px; padding: 0 16px; white-space: nowrap">
+                    Обновить
+                  </button>
+                </div>
+              </div>
+
+              <!-- Черный список -->
+              <div class="my-profile-field my-profile-field--full">
+                <span class="my-profile-field__label">Черный список</span>
+                <div style="display: flex; gap: 8px; margin-bottom: 8px">
+                  <input type="email" class="my-profile-field__input" id="privacyBlockEmailInput"
+                    placeholder="email@example.com" style="flex: 1" />
+                  <button type="button" class="my-profile-save" id="privacyBlockUserBtn"
+                    style="height: 44px; padding: 0 16px; white-space: nowrap">
+                    Заблокировать
+                  </button>
+                </div>
+                <div id="privacyBlockedUsersList" style="
+                      display: flex;
+                      flex-direction: column;
+                      gap: 8px;
+                      max-height: 200px;
+                      overflow-y: auto;
+                      margin-top: 8px;
+                    ">
+                  <!-- Список заблокированных пользователей будет добавлен через JavaScript -->
+                </div>
+              </div>
+
+              <div class="my-profile-actions">
+                <div class="my-profile-status hidden" id="privacyStatus"></div>
+                <button type="submit" class="my-profile-save" id="privacySaveBtn">
+                  Сохранить настройки
+                </button>
+              </div>
+            </form>
+          </div>
+          <!-- Панель настройки оформления -->
+          <div class="my-profile-panel hidden" id="appearanceSettingsPanel">
+            <div class="my-profile-panel__header">
+              <button type="button" class="my-profile-panel__close" id="appearanceCloseBtn">
+                ×
+              </button>
+              <div class="my-profile-panel__titleblock">
+                <div class="my-profile-panel__kicker">Настройки</div>
+                <h2 class="my-profile-panel__title">Оформление</h2>
+              </div>
+            </div>
+
+            <div class="appearance-settings-content">
+              <!-- Предустановленные темы чатов -->
+              <div class="appearance-section">
+                <div class="appearance-section-title">Темы чатов</div>
+                <div class="chat-themes-grid" id="chatThemesGrid">
+                  <button type="button" class="chat-theme-card" data-theme-id="classic">
+                    <div class="chat-theme-preview chat-theme-preview--classic">
+                      <div class="chat-theme-bubble chat-theme-bubble--incoming"></div>
+                      <div class="chat-theme-bubble chat-theme-bubble--outgoing"></div>
+                    </div>
+                    <div class="chat-theme-meta">
+                      <div class="chat-theme-name">Классика</div>
+                      <div class="chat-theme-desc">
+                        Синие акценты, светлый фон
+                      </div>
+                    </div>
+                  </button>
+                  <button type="button" class="chat-theme-card" data-theme-id="darkBlue">
+                    <div class="chat-theme-preview chat-theme-preview--darkblue">
+                      <div class="chat-theme-bubble chat-theme-bubble--incoming"></div>
+                      <div class="chat-theme-bubble chat-theme-bubble--outgoing"></div>
+                    </div>
+                    <div class="chat-theme-meta">
+                      <div class="chat-theme-name">Тёмный синий</div>
+                      <div class="chat-theme-desc">
+                        Тёмный фон, контрастные пузыри
+                      </div>
+                    </div>
+                  </button>
+                  <button type="button" class="chat-theme-card" data-theme-id="mint">
+                    <div class="chat-theme-preview chat-theme-preview--mint">
+                      <div class="chat-theme-bubble chat-theme-bubble--incoming"></div>
+                      <div class="chat-theme-bubble chat-theme-bubble--outgoing"></div>
+                    </div>
+                    <div class="chat-theme-meta">
+                      <div class="chat-theme-name">Мята</div>
+                      <div class="chat-theme-desc">
+                        Мягкие зелёные акценты
+                      </div>
+                    </div>
+                  </button>
+                  <button type="button" class="chat-theme-card" data-theme-id="sunset">
+                    <div class="chat-theme-preview chat-theme-preview--sunset">
+                      <div class="chat-theme-bubble chat-theme-bubble--incoming"></div>
+                      <div class="chat-theme-bubble chat-theme-bubble--outgoing"></div>
+                    </div>
+                    <div class="chat-theme-meta">
+                      <div class="chat-theme-name">Закат</div>
+                      <div class="chat-theme-desc">
+                        Тёплые оранжево-розовые тона
+                      </div>
+                    </div>
+                  </button>
+                  <button type="button" class="chat-theme-card" data-theme-id="violet">
+                    <div class="chat-theme-preview chat-theme-preview--violet">
+                      <div class="chat-theme-bubble chat-theme-bubble--incoming"></div>
+                      <div class="chat-theme-bubble chat-theme-bubble--outgoing"></div>
+                    </div>
+                    <div class="chat-theme-meta">
+                      <div class="chat-theme-name">Фиолетовый неон</div>
+                      <div class="chat-theme-desc">
+                        Глубокий тёмный фон и неоновые пузыри
+                      </div>
+                    </div>
+                  </button>
+                  <button type="button" class="chat-theme-card" data-theme-id="graphite">
+                    <div class="chat-theme-preview chat-theme-preview--graphite">
+                      <div class="chat-theme-bubble chat-theme-bubble--incoming"></div>
+                      <div class="chat-theme-bubble chat-theme-bubble--outgoing"></div>
+                    </div>
+                    <div class="chat-theme-meta">
+                      <div class="chat-theme-name">Графит</div>
+                      <div class="chat-theme-desc">
+                        Максимально тёмный, минималистичный
+                      </div>
+                    </div>
+                  </button>
+                </div>
+
+              <!-- Кнопки сохранения и сброса -->
+              <div class="appearance-actions">
+                <button type="button" class="my-profile-save" id="themeSaveBtn">
+                  Сохранить
+                </button>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Модалка выхода -->
+        <div class="logout-confirm-overlay hidden" id="logoutConfirmOverlay">
+          <div class="logout-confirm-modal" id="logoutConfirmModal">
+            <div class="logout-confirm-title">Выйти из аккаунта?</div>
+            <div class="logout-confirm-subtitle">
+              Вы точно хотите выйти из аккаунта?
+            </div>
+            <div class="logout-confirm-actions">
+              <button type="button" class="logout-cancel-btn" id="logoutCancelBtn">
+                Отмена
+              </button>
+              <button type="button" class="logout-confirm-btn" id="logoutConfirmBtn">
+                Выйти
+              </button>
+            </div>
+          </div>
+        </div>
+        </aside>
+      </div>
+
+      <!-- Контакты: отдельный экран -->
+      <div class="contacts-section hidden" id="contactsSection">
+        <div class="contacts-main-wrapper">
+          <!-- Основной контент -->
+          <div class="contacts-content-wrapper">
+            <!-- Заголовок -->
+            <div class="contacts-header-section">
+              <div class="contacts-header-row">
+                <h1 class="contacts-main-title">
+                  Контакты
+                </h1>
+                <div class="contacts-header-actions">
+                  <button class="contacts-sort-btn" id="contactsSortBtn">
+                    Сортировка
+                  </button>
+                  <button class="contacts-add-btn" id="openAddContactBtn">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 5V19M5 12H19" stroke="white" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    </svg>
+                    <span>Новый контакт</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Список контактов -->
+            <div class="contacts-list-wrapper">
+              <div class="contacts-empty hidden" id="contactsEmpty">
+                Пока нет контактов
+              </div>
+              <ul class="contacts-list-main" id="contactsList"></ul>
+            </div>
+          </div>
+
+          <!-- Правая панель с иллюстрацией -->
+          <aside class="contacts-side-panel">
+            <div class="contacts-illustration-container">
+              <div class="contacts-illustration">
+                <img src="/images/empty-chat-icon.jpg" alt="Иллюстрация контактов" />
+              </div>
+              <div class="contacts-side-content">
+                <p class="contacts-side-text">
+                  У вас <span id="contactsCountDisplay">25</span> контактов. Приглашайте друзей и родных по ссылке:
+                </p>
+                <button class="contacts-invite-link-btn" id="contactsInviteLinkBtn">
+                  flicker.com/invite...
+                </button>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+
+      <!-- Звонки: история входящих и исходящих -->
+      <div class="calls-section hidden" id="callsSection">
+        <div class="calls-main-wrapper">
+          <!-- Левая часть: список звонков -->
+          <div class="calls-content-wrapper">
+            <div class="calls-header-section">
+              <div class="calls-header-row">
+                <h1 class="calls-main-title">
+                  Звонки
+                </h1>
+                <div class="calls-header-actions">
+                  <button class="calls-filter-btn calls-filter-btn-active" data-filter="all">
+                    Все
+                  </button>
+                  <button class="calls-filter-btn" data-filter="missed">
+                    Пропущенные
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="calls-list-wrapper">
+              <div class="calls-empty hidden" id="callsEmpty">
+                Пока нет звонков
+              </div>
+              <ul class="calls-list-main" id="callsList"></ul>
+            </div>
+          </div>
+
+          <!-- Правая часть: карточка и иллюстрация -->
+          <aside class="calls-side-panel">
+            <div class="calls-illustration-container">
+              <div class="calls-illustration">
+                <img src="/images/phone-woman.webp" alt="История звонков" loading="lazy" />
+              </div>
+              <div class="calls-side-content">
+                <p class="calls-side-text">
+                  Здесь будут показаны все ваши
+                  <span class="calls-side-accent">входящие</span> и
+                  <span class="calls-side-accent">исходящие</span> звонки.
+                </p>
+                <p class="calls-side-hint">
+                  Нажмите на запись, чтобы быстро открыть чат с собеседником.
+                </p>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+
+      <!-- Модалка добавления контакта -->
+      <div class="modal-backdrop hidden" id="addContactModal">
+        <div class="add-contact-modal">
+          <div class="add-contact-header">
+            <div>
+              <h3>Новый контакт</h3>
+              <p>Имя обязательно, фамилия — по желанию</p>
+            </div>
+            <button class="modal-close-btn" id="addContactCloseBtn" aria-label="Закрыть">
+              ×
+            </button>
+          </div>
+          <form id="addContactForm" class="add-contact-form">
+            <label class="form-label" for="contactFirstName">Имя*</label>
+            <input type="text" id="contactFirstName" class="form-input" placeholder="Имя" required />
+            <label class="form-label" for="contactLastName">Фамилия</label>
+            <input type="text" id="contactLastName" class="form-input" placeholder="Фамилия (необязательно)" />
+            <label class="form-label" for="contactEmail">Почта</label>
+            <input type="email" id="contactEmail" class="form-input" placeholder="example@mail.com" required />
+            <div class="form-error hidden" id="addContactError"></div>
+            <div class="add-contact-actions">
+              <button type="button" class="secondary-btn" id="cancelAddContact">
+                Отмена
+              </button>
+              <button type="submit" class="primary-btn">Добавить</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Секция групп -->
+      <div class="groups-section hidden" id="groupsSection">
+        <div class="groups-main-wrapper">
+          <!-- Левая часть: список групп -->
+          <div class="groups-content-wrapper">
+            <div class="groups-header-section">
+              <div class="groups-header-row">
+                <h1 class="groups-main-title">
+                  Группы
+                </h1>
+                <button class="groups-create-btn" id="openCreateGroupBtn">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 5V19M5 12H19" stroke="white" stroke-width="2" stroke-linecap="round"
+                      stroke-linejoin="round" />
+                  </svg>
+                  <span>Создать новую группу</span>
+                </button>
+              </div>
+            </div>
+            <div class="groups-list-wrapper">
+              <div class="groups-empty hidden" id="groupsEmpty">
+                Пока нет групп
+              </div>
+              <ul class="groups-list-main" id="groupsList"></ul>
+            </div>
+          </div>
+
+          <!-- Правая часть: окно чата группы -->
+          <main class="groups-chat-empty" id="groupsChatEmptyState">
+            <div class="chat-empty__content">
+              <div class="chat-empty__illustration">
+                <img class="empty-chat-icon empty-chat-icon-light" src="/images/empty-chat-icon.jpg" alt="Empty chat" />
+                <img class="empty-chat-icon empty-chat-icon-dark" src="/images/dark_empty_chat_icon.jfif"
+                  alt="Empty chat" />
+              </div>
+              <h1 class="chat-empty__title">Выберите группу для переписки</h1>
+            </div>
+          </main>
+
+          <main class="groups-chat-window hidden" id="groupsChatWindow">
+            <!-- Используем тот же хедер и структуру, что и в обычном чате -->
+            <header class="chat-header" id="groupsChatHeaderClickable">
+              <div class="chat-header-left">
+                <button class="chat-header-btn back-btn" id="backToGroupsListBtn">
+                  <img src="/images/chevron-left.svg" alt="Назад" />
+                </button>
+                <div class="avatar-container" id="groupsAvatar-container">
+                  <img id="groupsCurrentChatAvatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E" alt="Group Avatar" />
+                </div>
+                <div class="chat-info-header" id="groupsChat-info-header">
+                  <h2 id="groupsCurrentChatTitle">Название Группы</h2>
+                  <span id="groupsCurrentChatStatus" class="chat-status-header"></span>
+                </div>
+              </div>
+
+              <div class="chat-menu-container" id="groupsChat-menu-container">
+                <button class="chat-header-btn search-btn" id="groupsChatSearchBtn">
+                  <img src="/images/лупа.svg" alt="Поиск" />
+                </button>
+                <button class="chat-header-btn phone-btn" id="groupsChatCallBtn">
+                  <img src="/images/phones.svg" alt="Звонок" />
+                </button>
+                <button class="chat-header-btn menu-btn" id="groupsMenuToggleBtn">
+                  <img src="/images/dot-horizontal.svg" alt="Menu" />
+                </button>
+                <div class="chat-menu-dropdown hidden" id="groupsChatMenuDropdown">
+                  <button class="chat-menu-item">Очистить историю</button>
+                  <button class="chat-menu-item">Удалить группу</button>
+                  <button class="chat-menu-item">Покинуть группу</button>
+                </div>
+              </div>
+            </header>
+
+            <div class="chat-messages" id="groupsChatMessages"></div>
+
+            <div class="chat-input-container" id="groupsChat-input-container">
+              <form id="groupsMessageForm" class="chat-input-form">
+                <button type="button" class="input-icon-btn smiley-icon" id="groupsSmileyIcon">
+                  <img src="/images/smiley-happy.svg" alt="Смайлик" />
+                </button>
+
+                <input type="text" id="groupsMessageInput" name="message_content" class="chat-input-field"
+                  placeholder="Написать..." autocomplete="off" />
+
+                <button type="button" class="input-icon-btn mic-icon" id="groupsMicIcon">
+                  <img src="/images/microphone-02.svg" alt="Голосовое сообщение" />
+                </button>
+
+                <button type="button" id="groupsAttachmentIcon" class="input-icon-btn attachment-icon">
+                  <img src="/images/paperclip-01.svg" alt="Вложение" />
+                </button>
+
+                <button type="submit" id="groupsSendButton" class="send-button hidden">
+                  <img src="/images/pointer-02.svg" alt="Отправить" />
+                </button>
+              </form>
+            </div>
+          </main>
+        </div>
+      </div>
+
+      <!-- Модалка создания группы -->
+      <div class="modal-backdrop hidden" id="createGroupModal">
+        <div class="create-group-modal">
+          <div class="create-group-header">
+            <div>
+              <h3>Создать новую группу</h3>
+              <p>Укажите название группы и выберите участников</p>
+            </div>
+            <button class="modal-close-btn" id="createGroupCloseBtn" aria-label="Закрыть">
+              ×
+            </button>
+          </div>
+          <form id="createGroupForm" class="create-group-form">
+            <label class="form-label">Название группы*</label>
+            <input type="text" id="groupName" class="form-input" placeholder="Название группы" required />
+
+            <label class="form-label">Аватар группы</label>
+            <label class="form-label">Участники</label>
+            <div class="group-avatar-upload">
+              <input type="file" id="groupAvatarInput" accept="image/*" style="display: none" />
+              <div class="group-avatar-preview" id="groupAvatarPreview">
+                <img id="groupAvatarImg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E" alt="Аватар группы" />
+              </div>
+              <button type="button" class="group-avatar-change-btn" id="groupAvatarChangeBtn">
+                Изменить
+              </button>
+            </div>
+
+            <label class="form-label">Участники</label>
+            <div class="group-participants-section">
+              <div class="group-participants-search">
+                <input type="text" id="groupParticipantSearch" class="form-input"
+                  placeholder="Поиск по имени, username или email..." />
+              </div>
+              <div class="group-participants-list" id="groupParticipantsList"></div>
+              <div class="group-selected-participants" id="groupSelectedParticipants"></div>
+            </div>
+
+            <div class="form-error hidden" id="createGroupError"></div>
+            <div class="create-group-actions">
+              <button type="button" class="secondary-btn" id="cancelCreateGroup">
+                Отмена
+              </button>
+              <button type="submit" class="primary-btn">
+                Создать группу
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="modal-backdrop hidden" id="forwardModal">
+        <div class="create-group-modal">
+          <div class="create-group-header">
+            <div>
+              <h3>Переслать сообщение</h3>
+              <p>Выберите получателей или найдите пользователя</p>
+            </div>
+            <button class="modal-close-btn" id="forwardCloseBtn" aria-label="Закрыть">×</button>
+          </div>
+          <form id="forwardForm" class="create-group-form">
+            <label class="form-label" for="forwardSearchInput">Поиск</label>
+            <div class="group-participants-section">
+              <div class="group-participants-search">
+                <input type="text" id="forwardSearchInput" class="form-input" placeholder="Поиск по имени, username или email..." />
+              </div>
+              <div class="group-participants-list" id="forwardRecipientsList"></div>
+              <div class="group-selected-participants" id="forwardSelectedRecipients"></div>
+            </div>
+            <div class="form-error hidden" id="forwardError"></div>
+            <div class="create-group-actions">
+              <button type="button" class="secondary-btn" id="forwardCancelBtn">Отмена</button>
+              <button type="submit" class="primary-btn" id="forwardSendBtn">Переслать</button>
+            </div>
+          </form>
+        </div>
+      </div>
+      <!-- Модалка настроек группы -->
+      <div class="modal-backdrop hidden" id="groupSettingsModal">
+        <div class="group-settings-modal">
+          <div class="group-settings-header">
+            <div>
+              <h3>Настройки группы</h3>
+              <p id="groupSettingsSubtitle">Управление настройками группы</p>
+            </div>
+            <button class="modal-close-btn" id="groupSettingsCloseBtn" aria-label="Закрыть">
+              ×
+            </button>
+          </div>
+          <div class="group-settings-content" id="groupSettingsContent">
+            <!-- Контент будет загружен через JavaScript -->
+            <div class="group-settings-loading">Загрузка...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Модалка участников группы -->
+      <div class="modal-backdrop hidden" id="groupParticipantsModal">
+        <div class="group-settings-modal">
+          <div class="group-settings-header">
+            <div>
+              <h3>Участники группы</h3>
+              <p id="groupParticipantsSubtitle">
+                Управление участниками и администраторами
+              </p>
+            </div>
+            <button class="modal-close-btn" id="groupParticipantsCloseBtn" aria-label="Закрыть">
+              ×
+            </button>
+          </div>
+          <div class="group-settings-content" id="groupParticipantsContent">
+            <!-- Вкладки для участников и админов -->
+            <div class="group-participants-tabs">
+              <button type="button" class="group-participants-tab active" data-tab="participants"
+                id="groupParticipantsModalTab">
+                Участники
+              </button>
+              <button type="button" class="group-participants-tab" data-tab="admins" id="groupAdminsModalTab">
+                Админы
+              </button>
+            </div>
+
+            <!-- Контейнер для списка участников/админов -->
+            <div id="groupParticipantsModalList" class="group-participants-management-list">
+              <div class="group-settings-loading">Загрузка участников...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Модалка настройки прав админа -->
+      <div class="modal-backdrop hidden" id="adminRightsModal">
+        <div class="group-settings-modal">
+          <div class="group-settings-header">
+            <div>
+              <h3>Права доступа администратора</h3>
+              <p id="adminRightsSubtitle">
+                Настройка прав доступа для администратора
+              </p>
+            </div>
+            <button class="modal-close-btn" id="adminRightsCloseBtn" aria-label="Закрыть">
+              ×
+            </button>
+          </div>
+          <div class="group-settings-content" id="adminRightsContent">
+            <div class="group-settings-loading">Загрузка...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Модалка информации об участнике -->
+      <div class="modal-backdrop hidden" id="participantInfoModal">
+        <div class="group-settings-modal">
+          <div class="group-settings-header">
+            <div>
+              <h3>Информация об участнике</h3>
+              <p id="participantInfoSubtitle">Детали участника группы</p>
+            </div>
+            <button class="modal-close-btn" id="participantInfoCloseBtn" aria-label="Закрыть">
+              ×
+            </button>
+          </div>
+          <div class="group-settings-content" id="participantInfoContent">
+            <div class="group-settings-loading">Загрузка...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Индикатор активного звонка -->
+  <div class="call-indicator hidden" id="activeCallIndicator">
+    <div class="call-indicator-dot"></div>
+    <span id="activeCallIndicatorText">В звонке</span>
+  </div>
+
+  <!-- Модальное окно входящего звонка -->
+  <div class="call-modal-backdrop hidden" id="incomingCallModal" role="dialog" aria-labelledby="incomingCallName"
+    aria-modal="true">
+    <div class="call-modal">
+      <div class="call-modal-header">
+        <div class="call-modal-avatar" id="incomingCallAvatar">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E" alt="Avatar" />
+        </div>
+        <div class="call-modal-info">
+          <h3 id="incomingCallName">Входящий звонок</h3>
+          <p id="incomingCallType">Аудио звонок</p>
+        </div>
+      </div>
+      <div class="call-modal-actions">
+        <button class="call-btn call-btn-reject" id="rejectCallBtn" type="button" aria-label="Отклонить звонок">
+          <img src="/images/x-02-red.svg" alt="Отклонить" />
+        </button>
+        <button class="call-btn call-btn-accept" id="acceptCallBtn" type="button" aria-label="Принять звонок">
+          <img src="/images/phones.svg" alt="Принять" />
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Окно активного звонка -->
+  <div class="active-call-overlay hidden" id="activeCallOverlay">
+    <div class="active-call-container">
+      <!-- Видео контейнеры -->
+      <div class="call-video-container">
+        <video id="remoteVideo" autoplay playsinline class="call-video call-video-remote"></video>
+        <video id="localVideo" autoplay playsinline muted class="call-video call-video-local"></video>
+      </div>
+
+      <!-- Информация о звонке (когда видео выключено) -->
+      <div class="call-info-panel" id="callInfoPanel">
+        <!-- Для приватных звонков -->
+        <div class="call-info-single" id="callInfoSingle">
+          <div class="call-info-avatar" id="activeCallAvatar">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E" alt="Avatar" />
+          </div>
+          <div class="call-info-name" id="activeCallName">
+            Имя пользователя
+          </div>
+          <div class="call-info-timer" id="callTimer">00:00</div>
+        </div>
+
+        <!-- Для групповых звонков - список участников -->
+        <div class="call-info-group hidden" id="callInfoGroup">
+          <div class="call-participants-list" id="callParticipantsList">
+            <!-- Участники будут добавлены динамически -->
+          </div>
+          <div class="call-info-timer-group" id="callTimerGroup">00:00</div>
+        </div>
+      </div>
+
+      <!-- Панель управления -->
+      <div class="call-controls">
+        <button class="call-control-btn" id="toggleMicBtn" type="button" title="Микрофон">
+          <img src="/images/microphone-02.svg" alt="Микрофон" />
+        </button>
+        <button class="call-control-btn" id="toggleCameraBtn" type="button" title="Камера" style="display: none">
+          <img src="/images/video-on.svg" alt="Камера" />
+        </button>
+        <button class="call-control-btn call-control-btn-end" id="endCallBtn" type="button" title="Завершить">
+          <img src="/images/x-02-red.svg" alt="Завершить" />
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Окно аудио-чата -->
+  <div class="audio-chat-overlay hidden" id="audioChatOverlay">
+    <div class="audio-chat-container">
+      <div class="audio-chat-header">
+        <h3 class="audio-chat-title">Аудио-чат</h3>
+        <button class="audio-chat-close-btn" id="audioChatCloseBtn" aria-label="Закрыть">
+          <img src="/images/x-02-red.svg" alt="Закрыть" />
+        </button>
+      </div>
+
+      <div class="audio-chat-participants" id="audioChatParticipants">
+        <!-- Участники будут добавлены динамически -->
+      </div>
+
+      <div class="audio-chat-controls">
+        <button class="audio-chat-control-btn" id="audioChatToggleMicBtn" type="button" title="Микрофон">
+          <img src="/images/microphone-02.svg" alt="Микрофон" />
+        </button>
+        <button class="audio-chat-control-btn" id="audioChatVolumeBtn" type="button" title="Громкость">
+          <img src="/images/volume.svg" alt="Громкость" />
+        </button>
+        <button class="audio-chat-control-btn audio-chat-control-btn-hand" id="audioChatHandBtn" type="button"
+          title="Поднять руку">
+          <span>👋</span>
+        </button>
+        <button class="audio-chat-control-btn audio-chat-control-btn-leave" id="audioChatLeaveBtn" type="button"
+          title="Выйти">
+          <img src="/images/x-02-red.svg" alt="Выйти" />
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CORE MOBILE SIDEBAR LOGIC (INLINE FOR ROBUSTNESS) -->
+
+
+  <!-- Lightbox для медиа -->
+  <div id="mediaLightbox" class="media-lightbox hidden">
+    <button id="mediaLightboxClose" class="media-lightbox-close">&times;</button>
+    <div class="media-lightbox-content">
+      <img id="mediaLightboxImg" src="" alt="Preview" class="hidden">
+      <video id="mediaLightboxVideo" controls class="hidden"></video>
+    </div>
+  </div>
+
+  <script type="module" src="/chats_static/js/main.js?v=9"></script>
+  <script type="module" src="/chats_static/js/groups.js?v=8"></script>
+</body>
+
+</html>

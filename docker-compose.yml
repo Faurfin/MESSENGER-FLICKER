@@ -1,0 +1,68 @@
+services:
+  backend:
+    build:
+      context: .              # контекст = корень проекта
+      dockerfile: backend/Dockerfile   # докерфайл внутри backend/
+    container_name: fastapi_backend
+    restart: always
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mongo
+    env_file:
+      - .env  # Загружаем переменные из .env файла
+    volumes:
+      - ./images:/app/images
+      - ./static:/app/static
+      - ./frontend:/app/frontend
+    environment:
+      # Переменные из .env будут использованы автоматически
+      # Можно переопределить здесь, если нужно
+      - MONGODB_URL=${MONGODB_URL:-mongodb://mongo:27017/messenger}
+      - MONGODB_DB=${MONGODB_DB:-messenger}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-change_me_in_env}
+      - SECRET_KEY=${SECRET_KEY:-change_me_in_env}
+      - ALGORITHM=${ALGORITHM:-HS256}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - GIGACHAT_AUTH_BASE64=${GIGACHAT_AUTH_BASE64:-}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - CORS_ORIGINS=${CORS_ORIGINS:-}
+      - COOKIE_SECURE=${COOKIE_SECURE:-true}
+      - ENABLE_HSTS=${ENABLE_HSTS:-false}
+      # WebRTC TURN (для звонков через интернет). Без TURN звонки работают только локально.
+      # Metered Open Relay (бесплатно 20 GB/мес): metered.ca → METERED_APP_NAME, METERED_API_KEY
+      - METERED_APP_NAME=${METERED_APP_NAME:-}
+      - METERED_API_KEY=${METERED_API_KEY:-}
+      # Свой TURN (coturn): TURN_URL, TURN_USERNAME, TURN_CREDENTIAL
+      - TURN_URL=${TURN_URL:-}
+      - TURN_USERNAME=${TURN_USERNAME:-}
+      - TURN_CREDENTIAL=${TURN_CREDENTIAL:-}
+
+  mongo:
+    image: mongo:6.0
+    container_name: mongo_db
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: nginx_proxy
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      # Прокидываем robots.txt внутрь контейнера в стандартную папку html
+      - ./robots.txt:/usr/share/nginx/html/robots.txt:ro
+      # Сертификаты Let’s Encrypt, которые будет выпускать certbot на хосте
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+
+volumes:
+  mongo_data:

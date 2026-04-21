@@ -1,0 +1,307 @@
+/* ================================ */
+/* Улучшенные стили с анимациями    */
+/* ================================ */
+
+.settings-info.has-my-profile {
+    background: 
+        radial-gradient(1400px 700px at 8% 5%, rgba(52, 106, 254, 0.12), transparent 65%),
+        radial-gradient(1000px 500px at 92% 0%, rgba(138, 43, 226, 0.08), transparent 60%),
+        radial-gradient(800px 400px at 50% 100%, rgba(52, 106, 254, 0.06), transparent 70%),
+        var(--color-background-2);
+    position: relative;
+    overflow: hidden;
+}
+
+.settings-info.has-my-profile::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        linear-gradient(135deg, rgba(52, 106, 254, 0.03) 0%, transparent 50%),
+        linear-gradient(45deg, transparent 50%, rgba(138, 43, 226, 0.02) 100%);
+    pointer-events: none;
+    animation: gradientShift 8s ease-in-out infinite;
+}
+
+@keyframes gradientShift {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.my-profile-panel {
+    animation: panelSlideIn 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    transform-origin: top right;
+    backdrop-filter: blur(18px) saturate(170%);
+    -webkit-backdrop-filter: blur(18px) saturate(170%);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    box-shadow:
+        0 18px 40px rgba(15, 23, 42, 0.20);
+    background:
+        radial-gradient(120% 140% at 0% 0%, rgba(52, 106, 254, 0.10), transparent 55%),
+        radial-gradient(80% 120% at 100% 0%, rgba(138, 43, 226, 0.10), transparent 55%),
+        linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(245, 248, 255, 0.96));
+    border-radius: 26px;
+    padding: 20px 22px 18px;
+    gap: 16px;
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+}
+
+@keyframes panelSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(20px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+.my-profile-panel::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(52, 106, 254, 0.3) 50%, 
+        transparent 100%);
+    pointer-events: none;
+}
+
+.my-profile-panel__titleblock {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.my-profile-panel__close {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.my-profile-panel__close:hover {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(0, 0, 0, 0.12);
+    color: rgba(0, 0, 0, 0.7);
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+}
+
+.my-profile-panel__close:active {
+    transform: scale(0.95) translateY(1px);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.my-profile-panel__hero {
+    background:
+        linear-gradient(135deg,
+            rgba(52, 106, 254, 0.14) 0%,
+            rgba(138, 43, 226, 0.10) 40%,
+            rgba(52, 106, 254, 0.06) 100%);
+    border: 1px solid rgba(52, 106, 254, 0.35);
+    box-shadow:
+        0 10px 26px rgba(15, 23, 42, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.55);
+    border-radius: 22px;
+    padding: 18px 18px 16px;
+    gap: 14px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.my-profile-panel__hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(52, 106, 254, 0.1) 0%, transparent 70%);
+    animation: heroGlow 6s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes heroGlow {
+    0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+    50% { transform: translate(10px, 10px) scale(1.1); opacity: 0.8; }
+}
+
+.my-profile-panel__avatar {
+    width: 128px;
+    height: 128px;
+    border-radius: 28px;
+    background: linear-gradient(135deg, rgba(52, 106, 254, 0.10), rgba(138, 43, 226, 0.10));
+    border: 3px solid rgba(255, 255, 255, 0.9);
+    box-shadow:
+        0 10px 30px rgba(15, 23, 42, 0.45),
+        inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.my-profile-panel__avatar:hover {
+    transform: scale(1.02);
+    box-shadow: 
+        0 12px 32px rgba(52, 106, 254, 0.25),
+        0 4px 12px rgba(0, 0, 0, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.my-profile-panel__avatarbtn {
+    border: 1.5px dashed rgba(52, 106, 254, 0.55);
+    background: rgba(255, 255, 255, 0.85);
+    font-size: 13px;
+    font-weight: 600;
+    color: #274FCC;
+    box-shadow: 0 3px 6px rgba(15, 23, 42, 0.18);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.my-profile-panel__avatarbtn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(52, 106, 254, 0.1), 
+        transparent);
+    transition: left 0.5s ease;
+}
+
+.my-profile-panel__avatarbtn:hover {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(52, 106, 254, 0.6);
+    color: #274FCC;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(52, 106, 254, 0.15);
+}
+
+.my-profile-panel__avatarbtn:hover::before {
+    left: 100%;
+}
+
+.my-profile-panel__name {
+    font-size: 28px;
+    line-height: 1.15;
+    text-shadow: 0 2px 4px rgba(15, 23, 42, 0.35);
+    background: linear-gradient(135deg, #0f172a 0%, #020617 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.my-profile-panel__chip {
+    padding: 9px 16px;
+    background: linear-gradient(135deg, rgba(52, 106, 254, 0.12), rgba(138, 43, 226, 0.08));
+    border: 1px solid rgba(52, 106, 254, 0.2);
+    font-weight: 600;
+    font-size: 12px;
+    color: rgba(52, 106, 254, 0.9);
+    box-shadow: 0 2px 4px rgba(52, 106, 254, 0.1);
+    transition: all 0.2s ease;
+}
+
+.my-profile-panel__chip:hover {
+    background: linear-gradient(135deg, rgba(52, 106, 254, 0.18), rgba(138, 43, 226, 0.12));
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(52, 106, 254, 0.15);
+}
+
+.my-profile-field__input,
+.my-profile-field__textarea {
+    padding: 14px 18px;
+    border-radius: var(--radius-card-sm, 20px);
+    border: 1px solid var(--color-divider);
+    background: var(--glass-bg, rgba(255, 255, 255, 0.9));
+    backdrop-filter: blur(8px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition: all 0.2s ease;
+}
+
+.my-profile-field__input:hover,
+.my-profile-field__textarea:hover {
+    border-color: rgba(52, 106, 254, 0.4);
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06);
+}
+
+.my-profile-field__input:focus,
+.my-profile-field__textarea:focus {
+    border-color: rgba(52, 106, 254, 0.8);
+    background: #ffffff;
+    box-shadow: 
+        0 0 0 4px rgba(52, 106, 254, 0.15),
+        0 4px 12px rgba(52, 106, 254, 0.2);
+    transform: translateY(-1px);
+}
+
+.my-profile-save {
+    height: 52px;
+    padding: 0 32px;
+    font-size: 16px;
+    background: var(--gradient-primary-solid);
+    box-shadow: var(--glow-primary);
+    border-radius: var(--radius-pill, 999px);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+.my-profile-save::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.3), 
+        transparent);
+    transition: left 0.5s ease;
+}
+
+.my-profile-save:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+        0 12px 32px rgba(52, 106, 254, 0.4),
+        0 4px 12px rgba(52, 106, 254, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    background: linear-gradient(135deg, #3d75ff 0%, #2d5ae0 50%, #1f47c4 100%);
+}
+
+.my-profile-save:hover::before {
+    left: 100%;
+}
+
+.my-profile-save:active {
+    transform: translateY(0);
+    box-shadow: 
+        0 4px 12px rgba(52, 106, 254, 0.3),
+        inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.my-profile-save[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}

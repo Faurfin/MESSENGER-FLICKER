@@ -1,0 +1,96 @@
+
+/* ==================================== */
+/* 8. УЛУЧШЕННЫЕ СТИЛИ ДЛЯ ВИДЕО        */
+/* ==================================== */
+
+/* Контейнер сообщения с видео (аналогично изображениям) */
+.message.has-video {
+  padding: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  display: block !important;
+  position: relative;
+  border: none !important;
+}
+
+/* Контейнер видео внутри сообщения */
+.message.has-video .message-video-container {
+  margin: 0 !important;
+  width: 100% !important;
+  border-radius: 18px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-soft);
+}
+
+/* Фон для исходящих сообщений с видео */
+.message.has-video.outgoing .message-video-container {
+  background: var(--gradient-primary);
+  color: #ffffff;
+}
+
+/* Фон для входящих сообщений с видео */
+.message.has-video.incoming .message-video-container {
+  background: var(--color-background-message);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: var(--color-text-dark);
+}
+body.theme-dark .message.has-video.incoming .message-video-container {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Само видео */
+.message.has-video .message-video {
+  width: 100%;
+  max-width: 100%;
+  display: block;
+  border-radius: 18px 18px 0 0;
+  object-fit: cover;
+  margin: 0;
+}
+
+/* Если текста нет, скругление снизу тоже */
+.message.has-video .message-video:last-child {
+  border-radius: 18px;
+}
+
+/* Текст под видео */
+.message.has-video .message-content {
+  padding: 8px 12px 24px 12px;
+  background: transparent;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Мета-данные поверх видео/фона */
+.message.has-video .message-meta {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 2px 6px;
+  border-radius: 10px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* Цвет текста времени и галочек всегда белый */
+.message.has-video .message-timestamp {
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-size: 10px;
+}
+
+.message.has-video .message-ticks img {
+  filter: brightness(0) invert(1);
+  opacity: 0.9;
+}
+
+/* Убираем отступы у параграфов в тексте */
+.message.has-video .message-content p {
+  margin: 0;
+}

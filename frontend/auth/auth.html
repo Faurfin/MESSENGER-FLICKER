@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Вход и регистрация в мессенджере Flicker. Удобный и безопасный сервис для общения."
+    />
+    <title>Flicker Authorization</title>
+
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;800&display=swap"
+      rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;800&display=swap"
+        rel="stylesheet"
+      />
+    </noscript>
+
+    <style>
+      * {
+        box-sizing: border-box;
+        font-family: "Manrope", sans-serif;
+      }
+
+      body {
+        margin: 0;
+        background-color: #f5f6fa;
+        color: #0f1417;
+        /* ИСПРАВЛЕНО: max-height заменен на min-height, чтобы не ломать скролл */
+        min-height: 100vh; 
+        width: 100%;
+      }
+
+      .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 40px;
+        gap: 80px;
+      }
+
+      .auth-panel {
+        align-items: center;
+        text-align: center;
+        max-width: 594px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        padding: 0;
+        gap: 0;
+        position: relative;
+        min-height: 600px;
+        justify-content: space-between;
+      }
+
+      .auth-footer-info {
+        position: absolute;
+        bottom: -100px;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+        font-weight: 500;
+        color: #4b5563;
+        padding: 20px 10px;
+        max-width: 420px;
+        margin: 0 auto;
+      }
+
+      .logo-title {
+        font-size: 54px;
+        line-height: 41px;
+        font-weight: 650;
+        color: #2d5bff;
+        margin-bottom: 5px;
+      }
+
+      .title {
+        font-size: 64px;
+        line-height: 72px;
+        font-weight: 600;
+        letter-spacing: -0.03em;
+        color: #0f1417;
+        margin: 0 0 20px 0;
+      }
+
+      .tab-container {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        height: 40px;
+        margin-bottom: 40px;
+        margin-top: 10px;
+        width: 100%;
+      }
+
+      .tab-button {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        height: 100%;
+        min-width: 69px;
+      }
+
+      .tab-button.active {
+        background: #0f1417;
+        color: #ffffff;
+        font-weight: 600;
+        box-shadow: 0 4px 10px rgba(15, 20, 23, 0.12);
+      }
+
+      .tab-button.inactive {
+        background: #ffffff;
+        color: #0f1417;
+        font-weight: 500;
+        border: 1px solid rgba(15, 20, 23, 0.06);
+      }
+
+      .tab-button:hover {
+        opacity: 0.95;
+      }
+
+      .forms-container {
+        position: relative;
+        width: 100%;
+        min-height: 300px;
+        margin-bottom: 60px;
+      }
+
+      .form {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        display: none;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .form.active {
+        display: flex;
+      }
+
+      .input-group {
+        width: 100%;
+        height: 48px;
+        background: #ffffff;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        position: relative;
+        border: 1px solid rgba(15, 20, 23, 0.06);
+        padding: 0 12px;
+        box-shadow: 0 1px 0 rgba(15, 20, 23, 0.02) inset;
+      }
+
+      .input-label {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        border: 0;
+      }
+
+      .username-input,
+      .email-input,
+      .password-input {
+        width: 100%;
+        height: 100%;
+        background: transparent;
+        border: none;
+        padding: 0 12px;
+        font-size: 15px;
+        font-weight: 500;
+        color: #0f1417;
+        outline: none;
+      }
+
+      .input-group:focus-within {
+        box-shadow: 0 0 0 3px rgba(45, 91, 255, 0.12);
+        border-color: rgba(45, 91, 255, 0.28);
+      }
+
+      /* ИСПРАВЛЕНО: убраны !important */
+      .username-input::placeholder,
+      .email-input::placeholder,
+      .password-input::placeholder {
+        color: #bfc6d3;
+        opacity: 1;
+        font-weight: 500;
+      }
+
+      .password-input-container {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        display: flex;
+        align-items: center;
+      }
+
+      .password-input-container .password-input {
+        padding-right: 50px;
+      }
+
+      /* АНИМАЦИЯ ГЛАЗКА */
+      .toggle-password {
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+      }
+
+      .eye-icon {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        object-fit: contain;
+        transition: opacity 0.25s ease, transform 0.25s ease;
+      }
+
+      /* Базовое состояние (пароль скрыт) */
+      .eye-closed {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+      }
+      .eye-open {
+        opacity: 0;
+        transform: scale(0.5) rotate(-15deg);
+      }
+
+      /* Состояние: пароль открыт */
+      .toggle-password.is-visible .eye-closed {
+        opacity: 0;
+        transform: scale(0.5) rotate(15deg);
+      }
+      .toggle-password.is-visible .eye-open {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+      }
+
+      .continue-button {
+        width: 100%;
+        height: 56px;
+        padding: 12px 0;
+        background-color: #2d5bff;
+        border: none;
+        border-radius: 12px;
+        color: #ffffff;
+        font-weight: 600;
+        font-size: 18px;
+        line-height: 22px;
+        letter-spacing: -0.02em;
+        margin-top: 10px;
+        cursor: pointer;
+        transition: all 0.18s;
+      }
+
+      .continue-button:hover {
+        background-color: #234de0;
+        box-shadow: 0 8px 18px rgba(45, 91, 255, 0.22);
+      }
+
+      .continue-button:active {
+        transform: scale(0.995);
+      }
+
+      /* --- Правая Панель (Изображение) --- */
+      .image-panel {
+        max-width: 800px;
+        width: 100%;
+        height: 800px;
+        border-radius: 30px;
+        overflow: hidden;
+        flex-grow: 1;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        position: relative;
+        display: flex;
+      }
+
+      .hero-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .image-panel::before,
+      .image-panel::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle at center,
+          rgba(45, 91, 255, 0.18),
+          rgba(45, 91, 255, 0) 60%
+        );
+        filter: blur(26px);
+        mix-blend-mode: screen;
+        pointer-events: none;
+      }
+
+      .image-panel::before {
+        width: 360px;
+        height: 360px;
+        top: -30px;
+        right: 40px;
+      }
+
+      .image-panel::after {
+        width: 420px;
+        height: 420px;
+        bottom: -80px;
+        left: 120px;
+      }
+
+      @media (max-width: 1200px) {
+        .container {
+          flex-direction: column;
+          gap: 40px;
+          padding: 20px;
+        }
+
+        .auth-panel {
+          max-width: 450px;
+          align-items: center;
+          text-align: center;
+        }
+
+        .title {
+          font-size: 48px;
+          line-height: 56px;
+          text-align: center;
+        }
+
+        .image-panel {
+          height: 300px;
+          min-width: 100%;
+        }
+
+        .tab-container {
+          justify-content: center;
+        }
+
+        .auth-footer-info {
+          display: none;
+        }
+      }
+
+      /* Мобильная адаптация */
+      @media (max-width: 768px) {
+        .container {
+          padding: 16px;
+          gap: 24px;
+        }
+
+        .auth-panel {
+          max-width: 100%;
+          min-height: auto;
+          padding: 0;
+          gap: 0;
+        }
+
+        .logo-title {
+          font-size: 32px;
+          line-height: 38px;
+          margin-bottom: 8px;
+        }
+
+        .title {
+          font-size: 36px;
+          line-height: 42px;
+          margin: 0 0 16px 0;
+        }
+
+        .tab-container {
+          margin-bottom: 24px;
+          margin-top: 8px;
+          height: 36px;
+        }
+
+        .tab-button {
+          padding: 6px 12px;
+          font-size: 15px;
+          min-width: 60px;
+        }
+
+        .forms-container {
+          min-height: auto;
+          margin-bottom: 32px;
+        }
+
+        .input-group {
+          height: 48px;
+          padding: 0 12px;
+        }
+
+        .username-input,
+        .email-input,
+        .password-input {
+          font-size: 16px; 
+        }
+
+        .continue-button {
+          height: 52px;
+          font-size: 16px;
+          margin-top: 8px;
+        }
+
+        .image-panel {
+          display: none; 
+        }
+
+        .modal {
+          padding: 16px;
+        }
+
+        .modal-content {
+          max-width: 100%;
+          margin: 20px auto;
+          padding: 20px 16px;
+          max-height: calc(100vh - 40px);
+        }
+
+        .modal-content h2 {
+          font-size: 20px;
+        }
+
+        .modal-content p {
+          font-size: 14px;
+        }
+      }
+
+      /* Очень маленькие экраны (320px - 480px) */
+      @media (max-width: 480px) {
+        .container {
+          padding: 12px;
+          gap: 20px;
+        }
+
+        .logo-title {
+          font-size: 28px;
+          line-height: 34px;
+        }
+
+        .title {
+          font-size: 32px;
+          line-height: 38px;
+          margin: 0 0 12px 0;
+        }
+
+        .tab-container {
+          margin-bottom: 20px;
+          gap: 6px;
+        }
+
+        .tab-button {
+          padding: 6px 10px;
+          font-size: 14px;
+          min-width: 55px;
+        }
+
+        .forms-container {
+          margin-bottom: 24px;
+        }
+
+        .continue-button {
+          height: 48px;
+        }
+
+        .agreement-text {
+          font-size: 12px;
+          margin-top: 8px;
+        }
+      }
+
+      .static-content {
+        text-align: center;
+        width: 100%;
+        min-height: 200px;
+      }
+
+      .agreement-text {
+        margin-top: 12px;
+        font-size: 13px;
+        line-height: 1.4;
+        color: #6b7280;
+      }
+
+      .agreement-text a {
+        color: #2d5bff;
+        text-decoration: underline;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .agreement-text a:hover {
+        text-decoration: none;
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.45);
+        padding: 20px;
+      }
+
+      .modal-content {
+        background: #ffffff;
+        max-width: 640px;
+        width: 100%;
+        margin: 40px auto;
+        padding: 24px 24px 20px;
+        border-radius: 16px;
+        box-shadow: 0 20px 50px rgba(15, 20, 23, 0.25);
+        position: relative;
+        max-height: calc(100vh - 80px);
+        overflow-y: auto;
+      }
+
+      .modal-content h2 {
+        margin-top: 0;
+        margin-bottom: 12px;
+        font-size: 22px;
+        font-weight: 700;
+      }
+
+      .modal-content p {
+        font-size: 14px;
+        line-height: 1.5;
+        color: #4b5563;
+        margin: 8px 0;
+      }
+
+      .modal-close {
+        position: absolute;
+        right: 16px;
+        top: 12px;
+        border: none;
+        background: transparent;
+        font-size: 24px;
+        cursor: pointer;
+        color: #9ca3af;
+        padding: 4px;
+      }
+
+      .modal-close:hover {
+        color: #4b5563;
+      }
+
+      input:-webkit-autofill,
+      input:-webkit-autofill:hover, 
+      input:-webkit-autofill:focus, 
+      input:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
+        -webkit-text-fill-color: #0f1417 !important;
+        transition: background-color 5000s ease-in-out 0s;
+}
+    </style>
+  </head>
+  <body>
+    <main class="container">
+      <div class="auth-panel">
+        <div class="static-content">
+          <h1 class="logo-title">Flicker</h1>
+          <h2 class="title">Добро пожаловать!</h2>
+
+          <div class="tab-container">
+            <button class="tab-button" data-tab="register">Регистрация</button>
+            <button class="tab-button" data-tab="login">Вход</button>
+          </div>
+        </div>
+
+        <div class="forms-container">
+          <form
+            id="register-form"
+            class="form"
+            action="/register"
+            method="post"
+          >
+            <div class="input-group">
+              <label for="username" class="input-label">Имя пользователя</label>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                class="username-input"
+                placeholder="Имя пользователя"
+                required
+                autocomplete="username"
+              />
+            </div>
+
+            <div class="input-group">
+              <label for="email" class="input-label">Email</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                class="email-input"
+                placeholder="Email"
+                required
+                autocomplete="email"
+              />
+            </div>
+
+            <div class="input-group">
+              <div class="password-input-container">
+                <label for="password" class="input-label">Пароль</label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  class="password-input"
+                  placeholder="Пароль"
+                  required
+                  autocomplete="new-password"
+                />
+                <button
+                  type="button"
+                  class="toggle-password"
+                  aria-label="Показать пароль"
+                >
+                  <img
+                    src="/images/eye-open.svg"
+                    alt=""
+                    class="eye-icon eye-open"
+                    width="20"
+                    height="20"
+                  />
+                  <img
+                    src="/images/eye-closed.svg"
+                    alt=""
+                    class="eye-icon eye-closed"
+                    width="20"
+                    height="20"
+                  />
+                </button>
+              </div>
+            </div>
+
+            {% if tab == 'register' and error_message %}
+            <p style="color: red; font-size: 0.9em; margin-top: 5px">
+              {{ error_message }}
+            </p>
+            {% endif %}
+
+            <button type="submit" class="continue-button">
+              Зарегистрироваться
+            </button>
+
+            <p class="agreement-text">
+              Продолжая регистрацию, вы соглашаетесь с
+              <a href="#" id="open-privacy">Политикой конфиденциальности</a>
+              и
+              <a href="#" id="open-terms">Правилами пользования</a>.
+            </p>
+          </form>
+
+          <form id="login-form" class="form" action="/login" method="post">
+            <div class="input-group">
+              <label for="login-email" class="input-label">Email</label>
+              <input
+                type="email"
+                id="login-email"
+                name="email"
+                class="email-input"
+                placeholder="Email"
+                required
+                autocomplete="email"
+              />
+            </div>
+
+            <div class="input-group">
+              <div class="password-input-container">
+                <label for="login-password" class="input-label">Пароль</label>
+                <input
+                  type="password"
+                  id="login-password"
+                  name="password"
+                  class="password-input"
+                  placeholder="Пароль"
+                  required
+                  autocomplete="current-password"
+                />
+                <button
+                  type="button"
+                  class="toggle-password"
+                  aria-label="Показать пароль"
+                >
+                  <img
+                    src="/images/eye-open.svg"
+                    alt=""
+                    class="eye-icon eye-open"
+                    width="20"
+                    height="20"
+                  />
+                  <img
+                    src="/images/eye-closed.svg"
+                    alt=""
+                    class="eye-icon eye-closed"
+                    width="20"
+                    height="20"
+                  />
+                </button>
+              </div>
+            </div>
+
+            {% if tab == 'login' and error_message %}
+            <p style="color: red; font-size: 0.9em; margin-top: 5px">
+              {{ error_message }}
+            </p>
+            {% endif %} {% if tab == 'login' and success_message %}
+            <p style="color: green; font-size: 0.9em; margin-top: 5px">
+              {{ success_message }}
+            </p>
+            {% endif %}
+
+            <button type="submit" class="continue-button">Войти</button>
+          </form>
+        </div>
+
+        <div class="auth-footer-info">
+          <span class="auth-group-name">Group "Flicker-Team"</span>
+          <span class="auth-year">2025</span>
+        </div>
+      </div>
+
+      <div class="image-panel">
+        <img
+          src="/images/phone-woman.webp"
+          alt="Flicker App Preview"
+          class="hero-image"
+          width="800"
+          height="800"
+          fetchpriority="high"
+        />
+      </div>
+    </main>
+
+    <div id="privacy-modal" class="modal" aria-hidden="true">
+      <div class="modal-content">
+        <button
+          class="modal-close"
+          data-close="privacy-modal"
+          aria-label="Закрыть окно"
+        >
+          &times;
+        </button>
+        <h2>Политика конфиденциальности</h2>
+        <p>
+          Данный мессенджер (далее — «Сервис») создан исключительно в
+          образовательных целях в рамках учебного проекта и не предназначен для
+          коммерческого использования или массового распространения.
+        </p>
+        <p>
+          Все обрабатываемые данные используются только для обеспечения работы
+          Сервиса (отправка и получение сообщений), демонстрации функционала
+          мессенджера в рамках учебного проекта, а также для улучшения и отладки
+          Сервиса в ходе обучения. Данные не используются для рекламы,
+          профилирования или передачи третьим лицам в коммерческих целях.
+        </p>
+        <p>
+          В зависимости от реализации Сервиса могут обрабатываться:
+          регистрационные данные (логин, имя/никнейм, при необходимости —
+          электронная почта), технические данные (IP-адрес, тип
+          устройства/браузера, время доступа) и содержание сообщений, которые вы
+          добровольно отправляете через Сервис.
+        </p>
+        <p>
+          Обработка данных осуществляется на основании вашего согласия,
+          выраженного через использование Сервиса, и в рамках образовательных
+          целей проекта. Данные не продаются и не передаются третьим лицам, за
+          исключением случаев, когда это прямо требуется законом.
+        </p>
+        <p>
+          Данные хранятся только в течение срока существования учебного проекта
+          или до их удаления автором проекта/администратором. При разработке
+          принимаются разумные меры для защиты данных, однако учитывая учебный
+          характер проекта, абсолютная безопасность не может быть гарантирована.
+        </p>
+      </div>
+    </div>
+
+    <div id="terms-modal" class="modal">
+      <div class="modal-content">
+        <button
+          class="modal-close"
+          data-close="terms-modal"
+          aria-label="Закрыть окно"
+        >
+          &times;
+        </button>
+        <h2>Правила пользования</h2>
+        <p>
+          Сервис предоставляется только в учебных целях. Пользователь обязуется
+          не использовать Сервис для противоправной деятельности, рассылки
+          спама, оскорблений, распространения вредоносного ПО и любых действий,
+          нарушающих законодательство.
+        </p>
+        <p>
+          Администратор проекта оставляет за собой право ограничить доступ или
+          удалить учетную запись пользователя при нарушении данных правил или
+          при необходимости технического обслуживания/завершения проекта.
+        </p>
+        <p>
+          Используя Сервис, вы подтверждаете, что понимаете его учебный характер
+          и соглашаетесь с возможными ограничениями функциональности,
+          стабильности и сохранности данных.
+        </p>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const tabParam = "{{ tab or 'register' }}"; 
+        const tabButtons = document.querySelectorAll(".tab-button");
+        const registerForm = document.getElementById("register-form");
+        const loginForm = document.getElementById("login-form");
+
+        function switchForm(tab) {
+          requestAnimationFrame(() => {
+            const isRegister = tab === "register";
+            registerForm.classList.toggle("active", isRegister);
+            loginForm.classList.toggle("active", !isRegister);
+            tabButtons.forEach((button) => {
+              const active = button.dataset.tab === tab;
+              button.classList.toggle("active", active);
+              button.classList.toggle("inactive", !active);
+            });
+          });
+        }
+
+        switchForm(tabParam);
+
+        tabButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            const tab = button.dataset.tab;
+            switchForm(tab);
+            const newUrl = new URL(window.location);
+            newUrl.searchParams.set("tab", tab);
+            history.replaceState(null, "", newUrl);
+          });
+        });
+
+        // ПЛАВНОЕ ПЕРЕКЛЮЧЕНИЕ ГЛАЗКА
+        document.addEventListener("click", function (e) {
+          const toggleBtn = e.target.closest(".toggle-password");
+          if (!toggleBtn) return;
+
+          const input = toggleBtn
+            .closest(".password-input-container")
+            .querySelector(".password-input");
+
+          if (!input) return;
+
+          // Определяем текущее состояние
+          const isPassword = input.type === "password";
+          
+          // Переключаем тип инпута
+          input.type = isPassword ? "text" : "password";
+          
+          // Делегируем анимацию CSS через добавление класса
+          toggleBtn.classList.toggle("is-visible", isPassword);
+
+          // Сохраняем фокус на поле ввода
+          requestAnimationFrame(() => {
+            input.focus();
+          });
+        });
+
+        // Модальные окна
+        const modalOpeners = {
+          "open-privacy": "privacy-modal",
+          "open-terms": "terms-modal",
+        };
+
+        Object.keys(modalOpeners).forEach((btnId) => {
+          const btn = document.getElementById(btnId);
+          if (btn)
+            btn.addEventListener("click", (e) => {
+              e.preventDefault();
+              const modal = document.getElementById(modalOpeners[btnId]);
+              if (modal) {
+                  requestAnimationFrame(() => {
+                      modal.style.display = "block";
+                  });
+              }
+            });
+        });
+
+        document.querySelectorAll(".modal-close").forEach((btn) => {
+          btn.addEventListener("click", function () {
+            const modalId = this.getAttribute("data-close");
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                 requestAnimationFrame(() => {
+                    modal.style.display = "none";
+                 });
+            }
+          });
+        });
+
+        window.addEventListener("click", (e) => {
+          if (e.target.classList.contains("modal")) {
+              requestAnimationFrame(() => {
+                 e.target.style.display = "none";
+              });
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

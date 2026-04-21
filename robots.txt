@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Allow: /auth_static/
+Allow: /images/
+Disallow: /users/
+Disallow: /register
+Disallow: /login
+Disallow: /api/
+
+Host: https://web-flicker.ru
+Sitemap: https://web-flicker.ru/sitemap.xml
